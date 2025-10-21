@@ -51,32 +51,11 @@ def get_android_sign(android_id):
 
     return base64.b64encode(encrypted_bytes).decode()
 
-DATA_CENTERS = []
+DATA_CENTERS = ['103.103.244.130', '128.14.6.146', '156.227.199.65', '175.97.131.54', '43.132.82.123', '43.152.174.80', '43.152.18.169', '43.152.182.103', '43.152.184.108', '43.152.186.225', '43.152.19.141', '43.152.32.139', '43.152.6.232', '43.159.74.109', '43.159.94.183', '43.174.109.86', '43.174.24.119', '43.174.26.146', '43.175.144.123', '43.175.161.179', '43.175.193.54', '43.175.53.166', '79.127.165.112']
 
 async def cdn(session):
-    async with session.get("https://pastebin.com/raw/JAUiZzvb") as response:
-        ips_text = await response.text()
-
-    ips = [ip.strip() for ip in ips_text.split(",") if ip.strip()]
-
-    async def add_cdn(ip):
-        async with session.get(f"https://dns.google/resolve?name=gw.sandboxol.com&type=A&edns_client_subnet={ip}") as response:
-            payload = await response.json()
-            return [
-                answer["data"] for answer in payload.get("Answer", [])
-                if answer.get("type") == 1 and "data" in answer
-            ]
-
     while True:
-        tasks = (add_cdn(ip) for ip in ips)
-        results = await asyncio.gather(*tasks)
-
-        unique_ips = {ip for sublist in results for ip in sublist}
-
-        DATA_CENTERS[:] = sorted(list(unique_ips))
-        print(f"DATA_CENTERS updated: {DATA_CENTERS}")
-
-        await asyncio.sleep(600)
+        await asyncio.sleep(200)
 
 async def update_endpoints(session):
     global ENDPOINTS
