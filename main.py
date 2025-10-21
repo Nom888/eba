@@ -160,7 +160,7 @@ async def cr(session, lock):
                     xtime = str(int(time.time()))
                     a = "{"
                     b = "}"
-                    body_string = f'{{"decorationPicUrl":"http://static.sandboxol.com/sandbox/avatar/male.png","inviteCode":"","details":"httрs://t.mе/kn_ew (in telegram @kn_ew)\\nBruteforce account","decorationPicUrl":"http://staticgs.sandboxol.com/avatar/1761045871265360.jpg","nickName":"{nickname}","picType":1,"sex":1}}'
+                    body_string = f'{{"decorationPicUrl":"http://static.sandboxol.com/sandbox/avatar/male.png","inviteCode":"","details":"httрs://t.mе/kn_ew (in telegram @kn_ew)\\nBruteforce account","decorationPicUrl":"http://staticgs.sandboxol.com/avatar/1761081787482114.jpg","nickName":"{nickname}","picType":1,"sex":1}}'
                     xsign = get_xsign(f"/user/api/v1/user/register", nonce, xtime, body_string, android_id)
                     async with session.post(
                         f"https://{random.choice(DATA_CENTERS)}/user/api/v1/user/register",
