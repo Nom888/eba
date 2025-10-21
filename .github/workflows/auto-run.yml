@@ -1,7 +1,7 @@
-name: Auto Run main.py Continuously
+name: Auto Run main.py Continuously (4 Threads)
 
 on:
-  workflow_dispatch: # Позволяет запускать вручную
+  workflow_dispatch:
   push:
     branches: [ main ]
 
@@ -25,9 +25,12 @@ jobs:
           pip install aiohttp pycryptodome || true
           pip install uvloop || true
 
-      - name: Run main.py until job ends
+      - name: Run main.py in 4 parallel processes
         run: |
-          python -u main.py || true
+          for i in {1..4}; do
+            python -u main.py &
+          done
+          wait || true
 
       - name: Dispatch next workflow run
         if: always()
