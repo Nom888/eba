@@ -45,3 +45,4 @@ jobs:
             https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches \
             -d "{\"ref\":\"${REF}\"}"
           echo "Dispatched new workflow run for ${REPO}/${WORKFLOW_FILE} on ${REF}"
+
