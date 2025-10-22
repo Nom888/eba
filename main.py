@@ -123,7 +123,7 @@ async def proxies(session):
         )
         print("all proxy checked")
 
-        PROXY_WORK = result
+        PROXY_WORK = [str(proxy) for proxy in result]
 
         print(f"Found {len(PROXY_WORK)} working proxies.")
         await asyncio.sleep(60)
