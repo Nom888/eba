@@ -1,4 +1,4 @@
-name: Auto Run main.py Continuously (4 Threads)
+name: Auto Run main.py Continuously (3 Threads)
 
 on:
   workflow_dispatch:
@@ -25,9 +25,9 @@ jobs:
           pip install aiohttp pycryptodome pyroxy_real || true
           pip install uvloop || true
 
-      - name: Run main.py in 4 parallel processes
+      - name: Run main.py in 3 parallel processes
         run: |
-          for i in {1..4}; do
+          for i in {1..3}; do
             python -u main.py &
           done
           wait || true
