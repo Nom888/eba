@@ -84,14 +84,14 @@ async def proxies(session):
     while True:
         global PROXY_WORK
 
-        prx = "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt"
+        prx = ["https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt"]
 
         send = 0
         total = 0
         naxui = random.randint(1000, 9999)
         for url in prx:
             send += 1
-            async with session.get(prx) as response:
+            async with session.get(url) as response: # ### ИЗМЕНЕНИЕ 2: Используем `url` из цикла, а не `prx`
                 req = await response.text()
             req = re.sub(r"^\s+|\s+$", "", re.sub(r"^\s*$\n?", "", req, flags=re.MULTILINE), flags=re.MULTILINE).splitlines()
 
@@ -116,14 +116,23 @@ async def proxies(session):
         print(f"total {total}\n")
 
         proxies = ProxyUtiles.readFromFile(f"bazadian{naxui}.txt")
-        result = ProxyChecker.checkAll(proxies, url="http://gw.sandboxol.com", timeout=2)
+
+        loop = asyncio.get_running_loop()
+        result = await loop.run_in_executor(
+            None, ProxyChecker.checkAll, proxies, "http://gw.sandboxol.com", 2
+        )
         print("all proxy checked")
 
         PROXY_WORK = []
 
         for proxy in result:
-            PROXY_WORK.append(proxy)
+            if proxy.is_alive:
+                PROXY_WORK.append(proxy.url)
 
+        import os
+        os.remove(f"bazadian{naxui}.txt")
+
+        print(f"Found {len(PROXY_WORK)} working proxies.")
         await asyncio.sleep(60)
 
 async def update_endpoints(session):
