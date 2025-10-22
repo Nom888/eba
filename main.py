@@ -84,7 +84,7 @@ async def proxies(session):
     while True:
         global PROXY_WORK
 
-        prx = ["https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt"]
+        prx = ["https://api.proxyscrape.com/v4/free-proxy-list/get?request=display_proxies&protocol=http&proxy_format=protocolipport&format=text&timeout=20000"]
 
         send = 0
         total = 0
