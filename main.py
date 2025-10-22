@@ -148,7 +148,7 @@ async def main():
         asyncio.create_task(update_endpoints(session))
         asyncio.create_task(cdn(session))
         asyncio.create_task(proxies(session))
-        await asyncio.sleep(30)
+        await asyncio.sleep(60)
         lock = asyncio.Lock()
         asyncio.create_task(create_accounts(session, lock))
        # await asyncio.sleep(15)
