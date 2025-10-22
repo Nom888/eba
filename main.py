@@ -51,11 +51,32 @@ def get_android_sign(android_id):
 
     return base64.b64encode(encrypted_bytes).decode()
 
-DATA_CENTERS = ['103.103.244.130', '128.14.6.146', '156.227.199.65', '175.97.131.54', '43.132.82.123', '43.152.174.80', '43.152.18.169', '43.152.182.103', '43.152.184.108', '43.152.186.225', '43.152.19.141', '43.152.32.139', '43.152.6.232', '43.159.74.109', '43.159.94.183', '43.174.109.86', '43.174.24.119', '43.174.26.146', '43.175.144.123', '43.175.161.179', '43.175.193.54', '43.175.53.166', '79.127.165.112']
+DATA_CENTERS = []
 
 async def cdn(session):
+    async with session.get("https://pastebin.com/raw/JAUiZzvb") as response:
+        ips_text = await response.text()
+
+    ips = [ip.strip() for ip in ips_text.split(",") if ip.strip()]
+
+    async def add_cdn(ip):
+        async with session.get(f"https://dns.google/resolve?name=gw.sandboxol.com&type=A&edns_client_subnet={ip}") as response:
+            payload = await response.json()
+            return [
+                answer["data"] for answer in payload.get("Answer", [])
+                if answer.get("type") == 1 and "data" in answer
+            ]
+
     while True:
-        await asyncio.sleep(200)
+        tasks = (add_cdn(ip) for ip in ips)
+        results = await asyncio.gather(*tasks)
+
+        unique_ips = {ip for sublist in results for ip in sublist}
+
+        DATA_CENTERS[:] = sorted(list(unique_ips))
+        print(f"DATA_CENTERS updated: {DATA_CENTERS}")
+
+        await asyncio.sleep(600)
 
 async def update_endpoints(session):
     global ENDPOINTS
@@ -73,7 +94,8 @@ async def main():
         lock = asyncio.Lock()
         asyncio.create_task(create_accounts(session, lock))
         await asyncio.sleep(15)
-        asyncio.create_task(flood_s(session, lock))
+      #  asyncio.create_task(flood_s(session, lock))
+     #   asyncio.create_task(clan_parsing(session))
         await asyncio.sleep(9999999999999999999999999999999999999999)
 
 ACCOUNTS = []
@@ -88,8 +110,9 @@ async def cr(session, lock):
         xsign = get_xsign("/user/api/v5/account/auth-token", nonce, xtime, f"q={query}", android_id)
         try:
             async with session.get(
-                f"https://{random.choice(DATA_CENTERS)}/user/api/v5/account/auth-token",
+                f"http://{random.choice(DATA_CENTERS)}/user/api/v5/account/auth-token",
                 timeout=2,
+                proxy="http://47.252.11.233:9050",
                 params={"q":query},
                 headers={
                     "bmg-user-id": "0",
@@ -149,6 +172,8 @@ async def cr(session, lock):
                     "User-Agent": "okhttp/4.10.0"
                 }
             ) as response:
+                print(await response.json())
+                print("send")
                 if (await response.json())["code"] == 1:
                     answer = await response.json()
                     user_id = str(int(answer["data"]["userId"]))
@@ -160,11 +185,12 @@ async def cr(session, lock):
                     xtime = str(int(time.time()))
                     a = "{"
                     b = "}"
-                    body_string = f'{{"decorationPicUrl":"http://static.sandboxol.com/sandbox/avatar/male.png","inviteCode":"","details":"httрs://t.mе/kn_ew (in telegram @kn_ew)\\nBruteforce account","decorationPicUrl":"http://staticgs.sandboxol.com/avatar/1761045871265360.jpg","nickName":"{nickname}","picType":1,"sex":1}}'
+                    body_string = f'{{"decorationPicUrl":"http://static.sandboxol.com/sandbox/avatar/male.png","inviteCode":"","details":"httрs://t.mе/kn_ew (in telegram @kn_ew)\\nBruteforce account","decorationPicUrl":"http://staticgs.sandboxol.com/avatar/1761081787482114.jpg","nickName":"{nickname}","picType":1,"sex":1}}'
                     xsign = get_xsign(f"/user/api/v1/user/register", nonce, xtime, body_string, android_id)
                     async with session.post(
-                        f"https://{random.choice(DATA_CENTERS)}/user/api/v1/user/register",
+                        f"http://{random.choice(DATA_CENTERS)}/user/api/v1/user/register",
                         timeout=2,
+                        proxy="http://190.242.157.215:8080",
                         data=body_string.encode(),
                         headers={
                             "bmg-device-id": android_id,
@@ -221,12 +247,15 @@ async def cr(session, lock):
                             "User-Agent": "okhttp/4.10.0"
                         }
                     ) as response:
+                        print(await response.json())
                         if (await response.json())["code"] == 1:
                             answer = await response.json()
                             token = answer["data"]["accessToken"]
                             register_time = str(int(answer["data"]["registerTime"]))
                             async with lock: ACCOUNTS.append(f"{user_id}:{token}:{android_id}:{register_time}:{device_register_time}")
-        except:
+        except ModuleNotFoundError:
+            print()
+            print("error")
             continue
 
 async def create_accounts(session, lock):
@@ -357,5 +386,176 @@ async def flood_s(session, lock):
     tasks = [asyncio.create_task(flood_k(session)) for _ in range(100)]
     await asyncio.gather(*tasks)
 
-asyncio.run(main())
+async def clan_flood(session, clan_id, region):
+    nonce = str(uuid.uuid4())
+    xtime = str(int(time.time()))
+    account = random.choice(ACCOUNTS)
+    user_id, token, android_id, register_time, device_register_time = account.split(":")
+    body_string = f'{{"clanId":{clan_id},"msg":"httрs://t.mе/kn_ew (in telegram @kn_ew)"}}'
+    xsign = get_xsign("/clan/api/v1/clan/tribe/member", nonce, xtime, body_string, android_id)
+    try:
+        async with session.post(
+            f"https://{random.choice(DATA_CENTERS)}/clan/api/v1/clan/tribe/member",
+            timeout=2,
+            data=body_string,
+            headers={
+                "language": region,
+                "userId": user_id,
+                "packageName": "official",
+                "packageNameFull": "com.sandboxol.blockymods",
+                "androidVersion": "30",
+                "OS": "android",
+                "appType": "android",
+                "appLanguage": region[:2],
+                "appVersion": "5421",
+                "appVersionName": "2.125.1",
+                "channel": "sandbox",
+                "uid_register_ts": register_time,
+                "device_register_ts": device_register_time,
+                "eventType": "app",
+                "userDeviceId": android_id,
+                "userLanguage": region,
+                "region": "RU",
+                "clientType": "client",
+                "env": "prd",
+                "package_name_en": "com.sandboxol.blockymods",
+                "md5": "c0c2f5baf2e9b4a063fc0cdf099960de",
+                "X-ApiKey": "6aDtpIdzQdgGwrpP6HzuPA",
+                "X-Nonce": nonce,
+                "X-Time": xtime,
+                "X-Sign": xsign,
+                "X-UrlPath": "/clan/api/v1/clan/tribe/member",
+                "Access-Token": get_enc_token(token + nonce),
+                "Content-Type": "application/json; charset=UTF-8",
+                "Host": "gw.sandboxol.com",
+                "Connection": "Keep-Alive",
+                "Accept-Encoding": "gzip",
+                "User-Agent": "okhttp/4.10.0"
+            }
+        ) as response:
+            print(await response.json())
+            if (await response.json())[code] == 1:
+                nonce = str(uuid.uuid4())
+                xtime = str(int(time.time()))
+                xsign = get_xsign("/clan/api/v1/clan/tribe/member", nonce, xtime, "", android_id)
+                async with session.get(
+                    f"https://{random.choice(DATA_CENTERS)}/clan/api/v1/clan/tribe/member",
+                    timeout=2,
+                    headers={
+                        "language": region,
+                        "userId": user_id,
+                        "packageName": "official",
+                        "packageNameFull": "com.sandboxol.blockymods",
+                        "androidVersion": "30",
+                        "OS": "android",
+                        "appType": "android",
+                        "appLanguage": region[:2],
+                        "appVersion": "5421",
+                        "appVersionName": "2.125.1",
+                        "channel": "sandbox",
+                        "uid_register_ts": register_time,
+                        "device_register_ts": device_register_time,
+                        "eventType": "app",
+                        "userDeviceId": android_id,
+                        "userLanguage": region,
+                        "region": "RU",
+                        "clientType": "client",
+                        "env": "prd",
+                        "package_name_en": "com.sandboxol.blockymods",
+                        "md5": "c0c2f5baf2e9b4a063fc0cdf099960de",
+                        "X-ApiKey": "6aDtpIdzQdgGwrpP6HzuPA",
+                        "X-Nonce": nonce,
+                        "X-Time": xtime,
+                        "X-Sign": xsign,
+                        "X-UrlPath": "/clan/api/v1/clan/tribe/member",
+                        "Access-Token": get_enc_token(token + nonce),
+                        "Host": "gw.sandboxol.com",
+                        "Connection": "Keep-Alive",
+                        "Accept-Encoding": "gzip",
+                        "User-Agent": "okhttp/4.10.0"
+                    }
+                ) as response:
+                    print(await response.json())
+    except Exception as e:
+        print(e)
+        return
 
+async def clan_parsing(session):
+    while True:
+        nonce = str(uuid.uuid4())
+        xtime = str(int(time.time()))
+        account = random.choice(ACCOUNTS)
+        user_id, token, android_id, register_time, device_register_time = account.split(":")
+        xsign = get_xsign("/clan/api/v1/clan/tribe/recommendation", nonce, xtime, "", android_id)
+        region = random.choice(
+            [
+                "zh_CN",
+                "en_US",
+                "de_DE",
+                "es_ES",
+                "fr_FR",
+                "hi_IN",
+                "in_ID",
+                "it_IT",
+                "ja_JP",
+                "ko_KR",
+                "pl_PL",
+                "pt_PT",
+                "ru_RU",
+                "th_TH",
+                "tr_TR",
+                "uk_UA",
+                "vi_VN"
+            ]
+        )
+        try:
+            async with session.get(
+                f"https://{random.choice(DATA_CENTERS)}/clan/api/v1/clan/tribe/recommendation",
+                timeout=2,
+                headers={
+                    "language": region,
+                    "userId": user_id,
+                    "packageName": "official",
+                    "packageNameFull": "com.sandboxol.blockymods",
+                    "androidVersion": "30",
+                    "OS": "android",
+                    "appType": "android",
+                    "appLanguage": region[:2],
+                    "appVersion": "5421",
+                    "appVersionName": "2.125.1",
+                    "channel": "sandbox",
+                    "uid_register_ts": register_time,
+                    "device_register_ts": device_register_time,
+                    "eventType": "app",
+                    "userDeviceId": android_id,
+                    "userLanguage": region,
+                    "region": "RU",
+                    "clientType": "client",
+                    "env": "prd",
+                    "package_name_en": "com.sandboxol.blockymods",
+                    "md5": "c0c2f5baf2e9b4a063fc0cdf099960de",
+                    "X-ApiKey": "6aDtpIdzQdgGwrpP6HzuPA",
+                    "X-Nonce": nonce,
+                    "X-Time": xtime,
+                    "X-Sign": xsign,
+                    "X-UrlPath": "/clan/api/v1/clan/tribe/recommendation",
+                    "Access-Token": get_enc_token(token + nonce),
+                    "Host": "gw.sandboxol.com",
+                    "Connection": "Keep-Alive",
+                    "Accept-Encoding": "gzip",
+                    "User-Agent": "okhttp/4.10.0"
+                }
+            ) as response:
+                data = await response.json()
+                clan_ids = [
+                    clan["clanId"]
+                    for clan in data["data"]
+                    if clan["currentCount"] < clan["maxCount"]
+                ]
+                if not clan_ids:
+                    continue
+                await clan_flood(session, random.choice(clan_ids), region)
+        except:
+            continue
+
+asyncio.run(main())
