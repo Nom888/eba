@@ -1,4 +1,4 @@
-import asyncio
+jimport asyncio
 import base64
 import hashlib
 import random
