@@ -161,6 +161,8 @@ async def vless(session):
         await icmplib.async_ping(server, count=1, timeout=5)
         async with lock: VLESS_PING.append(server)
 
+    [f"{match.group(1)}:{match.group(2)}:{''.join(line.split())}" for line in result if (match := __import__('re').search(r'vless://(?:.*@)?([^:?#\s/]+|\[[^\]]+\]):(\d+)', line.strip()))]
+
     lock = asyncio.Lock()
     tasks = [pinge(server, lock) for server in result]
     await asyncio.gather(*tasks)
