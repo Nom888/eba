@@ -7,6 +7,7 @@ import time
 import re
 
 import aiohttp
+import icmplib
 try:
     import uvloop
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -15,8 +16,7 @@ except ImportError:
 from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.Util.Padding import pad
 from Crypto.PublicKey import RSA
-from PyRoxy import ProxyChecker, ProxyUtiles
-from aiohttp_socks import ProxyConnector
+from PyRoxy import ProxyChecker, ProxyUtile
 
 PROXY_WORK = ["socks5://127.0.0.1:10808"]
 
@@ -150,15 +150,34 @@ async def update_endpoints(session):
     async with session.get("https://pastebin.com/raw/zYLkEaLv") as response:
         ENDPOINTS = (await response.text()).split(",")
 
+VLESS_PING = []
+
+async def vless(session):
+    async with session.get("https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt") as response:
+        result = (await response.text()).split("\n")
+
+    async def pinge(server, lock):
+        if not server:
+            return
+        await icmplib.async_ping(server, count=1, timeout=5)
+        async with lock: VLESS_PING.append(server)
+
+    lock = asyncio.Lock()
+    tasks = [pinge(server, lock) for server in result]
+    await asyncio.gather(*tasks)
+    print("Выполнено")
+    print(VLESS_PING)
+
 async def main():
     async with aiohttp.ClientSession(
         connector=aiohttp.TCPConnector(ssl=False, limit=0)
     ) as session:
         asyncio.create_task(update_endpoints(session))
         asyncio.create_task(cdn(session))
-        await asyncio.sleep(5)
-        lock = asyncio.Lock()
-        asyncio.create_task(create_accounts(session, lock))
+        asyncio.create_task(vless(session))
+       # await asyncio.sleep(5)
+       # lock = asyncio.Lock()
+     #   asyncio.create_task(create_accounts(session, lock))
       #  await asyncio.sleep(15)
      #   asyncio.create_task(flood_s(session, lock))
         await asyncio.sleep(9999999999999999999999999999999999999999)
