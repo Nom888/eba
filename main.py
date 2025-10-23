@@ -18,7 +18,7 @@ from Crypto.PublicKey import RSA
 from PyRoxy import ProxyChecker, ProxyUtiles
 from aiohttp_socks import ProxyConnector
 
-PROXY_WORK = []
+PROXY_WORK = ["socks5://127.0.0.1:10808"]
 
 def get_xsign(path, nonce, time, params, android_id):
     md5 = hashlib.md5(f"6aDtpIdzQdgGwrpP6HzuPA{path}{nonce}{time}{params}9EuDKGtoWAOWoQH1cRng-d5ihNN60hkGLaRiaZTk-6s".encode()).hexdigest()
@@ -156,12 +156,7 @@ async def main():
     ) as session:
         asyncio.create_task(update_endpoints(session))
         asyncio.create_task(cdn(session))
-        asyncio.create_task(proxies(session))
-        while True:
-            if not PROXY_WORK:
-                await asyncio.sleep(0.1)
-                continue
-            break
+        await asyncio.sleep(5)
         lock = asyncio.Lock()
         asyncio.create_task(create_accounts(session, lock))
       #  await asyncio.sleep(15)
