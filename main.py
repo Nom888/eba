@@ -601,3 +601,4 @@ async def clan_parsing(session):
 
 asyncio.run(main())
 
+
