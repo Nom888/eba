@@ -16,7 +16,6 @@ except ImportError:
 from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.Util.Padding import pad
 from Crypto.PublicKey import RSA
-from PyRoxy import ProxyChecker, ProxyUtile
 
 PROXY_WORK = ["socks5://127.0.0.1:10808"]
 
