@@ -16,6 +16,7 @@ from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.Util.Padding import pad
 from Crypto.PublicKey import RSA
 from PyRoxy import ProxyChecker, ProxyUtiles
+from aiohttp_socks import ProxyConnector
 
 PROXY_WORK = []
 
@@ -85,26 +86,17 @@ async def proxies(session):
         global PROXY_WORK
 
         prx = [
-            "https://raw.githubusercontent.com/B4RC0DE-TM/proxy-list/main/HTTP.txt",
-            "https://raw.githubusercontent.com/mmpx12/proxy-list/master/http.txt",
-            "https://api.proxyscrape.com/?request=displayproxies&proxytype=http",
-            "https://api.openproxylist.xyz/http.txt",
-            "https://proxyspace.pro/http.txt",
-            "https://proxyspace.pro/https.txt",
-            "https://proxy-spider.com/api/proxies.example.txt",
-            "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/http.txt",
-            "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt",
-            "https://raw.githubusercontent.com/shiftytr/proxy-list/master/proxy.txt",
-            "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt",
-            "https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/http.txt",
-            "https://raw.githubusercontent.com/jetkai/proxy-list/main/online-proxies/txt/proxies-http.txt",
-            "https://raw.githubusercontent.com/clarketm/proxy-list/master/proxy-list-raw.txt",
-            "https://raw.githubusercontent.com/sunny9577/proxy-scraper/master/proxies.txt",
-            "https://raw.githubusercontent.com/roosterkid/openproxylist/main/HTTPS_RAW.txt",
-            "https://raw.githubusercontent.com/opsxcq/proxy-list/master/list.txt",
-            "https://raw.githubusercontent.com/proxy4parsing/proxy-list/main/http.txt",
-            "http://rootjazz.com/proxies/proxies.txt",
-            "https://www.proxy-list.download/api/v1/get?type=http"
+            "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/refs/heads/master/socks5.txt",
+            "https://raw.githubusercontent.com/proxifly/free-proxy-list/refs/heads/main/proxies/protocols/socks5/data.txt",
+            "https://raw.githubusercontent.com/Anonym0usWork1221/Free-Proxies/refs/heads/main/proxy_files/socks5_proxies.txt",
+            "https://raw.githubusercontent.com/elliottophellia/proxylist/refs/heads/master/results/socks5/global/socks5_checked.txt",
+            "https://raw.githubusercontent.com/ProxyScraper/ProxyScraper/refs/heads/main/socks5.txt",
+            "https://raw.githubusercontent.com/dpangestuw/Free-Proxy/refs/heads/main/socks5_proxies.txt",
+            "https://raw.githubusercontent.com/zenjahid/FreeProxy4u/refs/heads/main/socks5.txt",
+            "https://raw.githubusercontent.com/databay-labs/free-proxy-list/refs/heads/master/socks5.txt",
+            "https://raw.githubusercontent.com/Skillter/ProxyGather/refs/heads/master/proxies/working-proxies-socks5.txt",
+            "https://raw.githubusercontent.com/fyvri/fresh-proxy-list/archive/storage/classic/socks5.txt",
+            "https://raw.githubusercontent.com/zebbern/Proxy-Scraper/refs/heads/main/socks5.txt"
         ]
 
         send = 0
@@ -178,162 +170,163 @@ async def main():
 
 ACCOUNTS = []
 
-async def cr(session, lock):
+async def cr(lock):
     while True:
-        android_id = "".join(random.choice("0123456789abcdef") for _ in range(16))
-        nonce = str(uuid.uuid4())
-        query = get_enc_query(android_id, nonce)
-        android_sign = get_android_sign(android_id)
-        xtime = str(int(time.time()))
-        xsign = get_xsign("/user/api/v5/account/auth-token", nonce, xtime, f"q={query}", android_id)
-        try:
-            async with session.get(
-                f"https://gw.sandboxol.com/user/api/v5/account/auth-token",
-                timeout=5,
-                params={"q":query},
-                proxy=random.choice(PROXY_WORK),
-                headers={
-                    "bmg-user-id": "0",
-                    "bmg-device-id": android_id,
-                    "bmg-sign": android_sign,
-                    "bmg-adid-sign": "98a580c5182455f00f732f48233928706925543c",
-                    "package-name": "com.sandboxol.blockymods",
-                    "userId": "0",
-                    "packageName": "official",
-                    "packageNameFull": "com.sandboxol.blockymods",
-                    "androidVersion": "30",
-                    "OS": "android",
-                    "appType": "android",
-                    "appLanguage": "ru",
-                    "appVersion": "5421",
-                    "appVersionName": "2.125.1",
-                    "channel": "sandbox",
-                    "uid_register_ts": "0",
-                    "device_register_ts": "0",
-                    "eventType": "app",
-                    "userDeviceId": android_id,
-                    "userLanguage": "ru_RU",
-                    "region": "",
-                    "clientType": "client",
-                    "env": "prd",
-                    "package_name_en": "com.sandboxol.blockymods",
-                    "md5": "c0c2f5baf2e9b4a063fc0cdf099960de",
-                   "adid": "6b4f9c25-c0fe-413c-8122-d8ddfb50b5ac",
-                    "telecomOper": "unknown",
-                    "manufacturer": "Redmi_Redmi Note 8 Pro",
-                    "network": "wifi",
-                    "brand": "Redmi",
-                    "model": "Redmi Note 8 Pro",
-                    "device": "begonia",
-                    "deviceModel": "Redmi Note 8 Pro",
-                    "board": "begonia",
-                    "cpu": "CPU architecture: 8",
-                    "cpuFrequency": "2012500",
-                    "dpi": "2.75",
-                    "screenHeight": "2220",
-                    "screenWidth": "1080",
-                    "ram_memory": "5635",
-                    "rom_memory": "52438",
-                    "open_id": "",
-                    "open_id_type": "0",
-                    "client_ip": "",
-                   "apps_flyer_gaid": "6b4f9c25-c0fe-413c-8122-d8ddfb50b5ac",
-                   "X-ApiKey": "6aDtpIdzQdgGwrpP6HzuPA",
-                    "X-Nonce": nonce,
-                    "X-Time": xtime,
-                    "X-Sign": xsign,
-                    "X-UrlPath": "/user/api/v5/account/auth-token",
-                    "Access-Token": "",
-                    "Connection": "Keep-Alive",
-                    "Accept-Encoding": "gzip",
-                    "User-Agent": "okhttp/4.10.0"
-                }
-            ) as response:
-                print(await response.text())
-                if (await response.json())["code"] == 1:
-                    answer = await response.json()
-                    user_id = str(int(answer["data"]["userId"]))
-                    token = answer["data"]["accessToken"]
-                    register_time = str(int(answer["data"]["registerTime"]))
-                    device_register_time = str(int(answer["data"]["deviceRegisterTime"]))
-                    nickname = "kn_ew.tg_" + uuid.uuid4().hex[:11]
-                    nonce = str(uuid.uuid4())
-                    xtime = str(int(time.time()))
-                    a = "{"
-                    b = "}"
-                    body_string = f'{{"decorationPicUrl":"http://static.sandboxol.com/sandbox/avatar/male.png","inviteCode":"","details":"httрs://t.mе/kn_ew (in telegram @kn_ew)\\nBruteforce account","decorationPicUrl":"http://staticgs.sandboxol.com/avatar/1761081787482114.jpg","nickName":"{nickname}","picType":1,"sex":1}}'
-                    xsign = get_xsign(f"/user/api/v1/user/register", nonce, xtime, body_string, android_id)
-                    async with session.post(
-                        f"https://gw.sandboxol.com/user/api/v1/user/register",
-                        timeout=5,
-                        data=body_string.encode(),
-                        proxy=random.choice(PROXY_WORK),
-                        headers={
-                            "bmg-device-id": android_id,
-                            "userId": user_id,
-                            "packageName": "official",
-                            "packageNameFull": "com.sandboxol.blockymods",
-                            "androidVersion": "30",
-                            "OS": "android",
-                            "appType": "android",
-                            "appLanguage": "ru",
-                            "appVersion": "5421",
-                            "appVersionName": "2.125.1",
-                            "channel": "sandbox",
-                            "uid_register_ts": register_time,
-                            "device_register_ts": device_register_time,
-                            "eventType": "app",
-                            "userDeviceId": android_id,
-                            "userLanguage": "ru_RU",
-                            "region": "RU",
-                            "clientType": "client",
-                            "env": "prd",
-                            "package_name_en": "com.sandboxol.blockymods",
-                            "md5": "c0c2f5baf2e9b4a063fc0cdf099960de",
-                            "adid": "6b4f9c25-c0fe-413c-8122-d8ddfb50b5ac",
-                            "telecomOper": "unknown",
-                            "manufacturer": "Redmi_Redmi Note 8 Pro",
-                            "network": "wifi",
-                            "brand": "Redmi",
-                            "model": "Redmi Note 8 Pro",
-                            "device": "begonia",
-                            "deviceModel": "Redmi Note 8 Pro",
-                            "board": "begonia",
-                            "cpu": "CPU architecture: 8",
-                            "cpuFrequency": "2012500",
-                            "dpi": "2.75",
-                            "screenHeight": "2220",
-                            "screenWidth": "1080",
-                            "ram_memory": "5635",
-                            "rom_memory": "52438",
-                            "open_id": "",
-                            "open_id_type": "0",
-                            "client_ip": "",
-                            "apps_flyer_gaid": "6b4f9c25-c0fe-413c-8122-d8ddfb50b5ac",
-                            "X-ApiKey": "6aDtpIdzQdgGwrpP6HzuPA",
-                            "X-Nonce": nonce,
-                            "X-Time": xtime,
-                            "X-Sign": xsign,
-                            "X-UrlPath": "/user/api/v1/user/register",
-                            "Access-Token": get_enc_token(token + nonce),
-                            "Content-Type": "application/json; charset=UTF-8",
-                            "Connection": "Keep-Alive",
-                            "Accept-Encoding": "gzip",
-                            "User-Agent": "okhttp/4.10.0"
-                        }
-                    ) as response:
-                        print(await response.text())
-                        if (await response.json())["code"] == 1:
-                            answer = await response.json()
-                            token = answer["data"]["accessToken"]
-                            register_time = str(int(answer["data"]["registerTime"]))
-                            async with lock: ACCOUNTS.append(f"{user_id}:{token}:{android_id}:{register_time}:{device_register_time}")
-        except Exception as e:
-            print(e)
-            await asyncio.sleep(5)
+        async with aiohttp.ClientSession(connector=ProxyConnector.from_url(random.choice(PROXY_WORK), ssl=False, limit=0)) as session:
+            android_id = "".join(random.choice("0123456789abcdef") for _ in range(16))
+            nonce = str(uuid.uuid4())
+            query = get_enc_query(android_id, nonce)
+            android_sign = get_android_sign(android_id)
+            xtime = str(int(time.time()))
+            xsign = get_xsign("/user/api/v5/account/auth-token", nonce, xtime, f"q={query}", android_id)
+            try:
+                async with session.get(
+                    f"http://{random.choice(DATA_CENTERS)}/user/api/v5/account/auth-token",
+                    timeout=5,
+                    params={"q":query},
+                    headers={
+                        "bmg-user-id": "0",
+                        "bmg-device-id": android_id,
+                        "bmg-sign": android_sign,
+                        "bmg-adid-sign": "98a580c5182455f00f732f48233928706925543c",
+                        "package-name": "com.sandboxol.blockymods",
+                        "userId": "0",
+                        "packageName": "official",
+                        "packageNameFull": "com.sandboxol.blockymods",
+                        "androidVersion": "30",
+                        "OS": "android",
+                        "appType": "android",
+                        "appLanguage": "ru",
+                        "appVersion": "5421",
+                        "appVersionName": "2.125.1",
+                        "channel": "sandbox",
+                        "uid_register_ts": "0",
+                        "device_register_ts": "0",
+                        "eventType": "app",
+                        "userDeviceId": android_id,
+                        "userLanguage": "ru_RU",
+                        "region": "",
+                        "clientType": "client",
+                        "env": "prd",
+                        "package_name_en": "com.sandboxol.blockymods",
+                        "md5": "c0c2f5baf2e9b4a063fc0cdf099960de",
+                        "adid": "6b4f9c25-c0fe-413c-8122-d8ddfb50b5ac",
+                        "telecomOper": "unknown",
+                        "manufacturer": "Redmi_Redmi Note 8 Pro",
+                        "network": "wifi",
+                        "brand": "Redmi",
+                        "model": "Redmi Note 8 Pro",
+                        "device": "begonia",
+                        "deviceModel": "Redmi Note 8 Pro",
+                        "board": "begonia",
+                        "cpu": "CPU architecture: 8",
+                        "cpuFrequency": "2012500",
+                        "dpi": "2.75",
+                        "screenHeight": "2220",
+                        "screenWidth": "1080",
+                        "ram_memory": "5635",
+                        "rom_memory": "52438",
+                        "open_id": "",
+                        "open_id_type": "0",
+                        "client_ip": "",
+                        "apps_flyer_gaid": "6b4f9c25-c0fe-413c-8122-d8ddfb50b5ac",
+                        "X-ApiKey": "6aDtpIdzQdgGwrpP6HzuPA",
+                        "X-Nonce": nonce,
+                        "X-Time": xtime,
+                        "X-Sign": xsign,
+                        "X-UrlPath": "/user/api/v5/account/auth-token",
+                        "Access-Token": "",
+                        "Host": "gw.sandboxol.com",
+                        "Connection": "Keep-Alive",
+                        "Accept-Encoding": "gzip",
+                        "User-Agent": "okhttp/4.10.0"
+                    }
+                ) as response:
+                    print(await response.text())
+                    if (await response.json())["code"] == 1:
+                        answer = await response.json()
+                        user_id = str(int(answer["data"]["userId"]))
+                        token = answer["data"]["accessToken"]
+                        register_time = str(int(answer["data"]["registerTime"]))
+                        device_register_time = str(int(answer["data"]["deviceRegisterTime"]))
+                        nickname = "kn_ew.tg_" + uuid.uuid4().hex[:11]
+                        nonce = str(uuid.uuid4())
+                        xtime = str(int(time.time()))
+                        a = "{"
+                        b = "}"
+                        body_string = f'{{"decorationPicUrl":"http://static.sandboxol.com/sandbox/avatar/male.png","inviteCode":"","details":"httрs://t.mе/kn_ew (in telegram @kn_ew)\\nBruteforce account","decorationPicUrl":"http://staticgs.sandboxol.com/avatar/1761081787482114.jpg","nickName":"{nickname}","picType":1,"sex":1}}'
+                        xsign = get_xsign(f"/user/api/v1/user/register", nonce, xtime, body_string, android_id)
+                        async with session.post(
+                            f"http://{random.choice(DATA_CENTERS)}/user/api/v1/user/register",
+                            timeout=5,
+                            data=body_string.encode(),
+                            headers={
+                                "bmg-device-id": android_id,
+                                "userId": user_id,
+                                "packageName": "official",
+                                "packageNameFull": "com.sandboxol.blockymods",
+                                "androidVersion": "30",
+                                "OS": "android",
+                                "appType": "android",
+                                "appLanguage": "ru",
+                                "appVersion": "5421",
+                                "appVersionName": "2.125.1",
+                                "channel": "sandbox",
+                                "uid_register_ts": register_time,
+                                "device_register_ts": device_register_time,
+                                "eventType": "app",
+                                "userDeviceId": android_id,
+                                "userLanguage": "ru_RU",
+                                "region": "RU",
+                                "clientType": "client",
+                                "env": "prd",
+                                "package_name_en": "com.sandboxol.blockymods",
+                                "md5": "c0c2f5baf2e9b4a063fc0cdf099960de",
+                                "adid": "6b4f9c25-c0fe-413c-8122-d8ddfb50b5ac",
+                                "telecomOper": "unknown",
+                                "manufacturer": "Redmi_Redmi Note 8 Pro",
+                                "network": "wifi",
+                                "brand": "Redmi",
+                                "model": "Redmi Note 8 Pro",
+                                "device": "begonia",
+                                "deviceModel": "Redmi Note 8 Pro",
+                                "board": "begonia",
+                                "cpu": "CPU architecture: 8",
+                                "cpuFrequency": "2012500",
+                                "dpi": "2.75",
+                                "screenHeight": "2220",
+                                "screenWidth": "1080",
+                                "ram_memory": "5635",
+                                "rom_memory": "52438",
+                                "open_id": "",
+                                "open_id_type": "0",
+                                "client_ip": "",
+                                "apps_flyer_gaid": "6b4f9c25-c0fe-413c-8122-d8ddfb50b5ac",
+                                "X-ApiKey": "6aDtpIdzQdgGwrpP6HzuPA",
+                                "X-Nonce": nonce,
+                                "X-Time": xtime,
+                                "X-Sign": xsign,
+                                "X-UrlPath": "/user/api/v1/user/register",
+                                "Access-Token": get_enc_token(token + nonce),
+                                "Content-Type": "application/json; charset=UTF-8",
+                                "Host": "gw.sandboxol.com",
+                                "Connection": "Keep-Alive",
+                                "Accept-Encoding": "gzip",
+                                "User-Agent": "okhttp/4.10.0"
+                            }
+                        ) as response:
+                            print(await response.text())
+                            if (await response.json())["code"] == 1:
+                                answer = await response.json()
+                                token = answer["data"]["accessToken"]
+                                register_time = str(int(answer["data"]["registerTime"]))
+                                async with lock: ACCOUNTS.append(f"{user_id}:{token}:{android_id}:{register_time}:{device_register_time}")
+            except Exception as e:
+                print(e)
+                await asyncio.sleep(5)
 
 async def create_accounts(session, lock):
-        tasks = [asyncio.create_task(cr(session, lock)) for _ in range(100)]
+        tasks = [asyncio.create_task(cr(lock)) for _ in range(100)]
         await asyncio.gather(*tasks)
 
 async def flood_s(session, lock):
