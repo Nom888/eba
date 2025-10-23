@@ -167,7 +167,7 @@ ACCOUNTS = []
 
 async def cr(lock):
     while True:
-        async with aiohttp.ClientSession(connector=ProxyConnector.from_url(random.choice(PROXY_WORK), ssl=False, limit=0)) as session:
+        async with aiohttp.ClientSession(connector=ProxyConnector.from_url(random.choice(PROXY_WORK), ssl=False, rdns=True, limit=0)) as session:
             android_id = "".join(random.choice("0123456789abcdef") for _ in range(16))
             nonce = str(uuid.uuid4())
             query = get_enc_query(android_id, nonce)
