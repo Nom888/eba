@@ -21,7 +21,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          curl -L "https://github.com/ginuerzh/gost/releases/download/v2.12.0/gost-linux-amd64-2.12.0.gz" | gzip -d > gost && chmod +x gost
+          curl -L "https://github.com/ginuerzh/gost/releases/download/v2.12.0/gost_2.12.0_linux_amd64.tar.gz" | gzip -d > gost && chmod +x gost
           nohup ./gost -L=socks5://127.0.0.1:10808 -F='vless://0e34acca-bbfb-45a3-97ba-14b640805b54@45.134.13.71:443?type=tcp&security=reality&pbk=GnIR5PwKgBFkYyVsg4f1fltJkJ_baUABPET-MUPjnz4&fp=random&sni=www.bing.com&sid=9f&spx=%2F' &
           python -m pip install --upgrade pip
           pip install aiohttp pycryptodome pyroxy_real2 aiohttp-socks || true
