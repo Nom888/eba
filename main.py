@@ -15,6 +15,7 @@ except ImportError:
 from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.Util.Padding import pad
 from Crypto.PublicKey import RSA
+from PyRoxy import ProxyChecker, ProxyUtiles
 
 PROXY_WORK = []
 
@@ -83,34 +84,58 @@ async def proxies(session):
     while True:
         global PROXY_WORK
 
-        prx = ["https://api.proxyscrape.com/v4/free-proxy-list/get?request=display_proxies&protocol=http&proxy_format=protocolipport&format=text&timeout=20000"]
+        prx = [
+            "https://raw.githubusercontent.com/B4RC0DE-TM/proxy-list/main/HTTP.txt",
+            "https://raw.githubusercontent.com/mmpx12/proxy-list/master/http.txt",
+            "https://api.proxyscrape.com/?request=displayproxies&proxytype=http",
+            "https://api.openproxylist.xyz/http.txt",
+            "https://proxyspace.pro/http.txt",
+            "https://proxyspace.pro/https.txt",
+            "https://proxy-spider.com/api/proxies.example.txt",
+            "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/http.txt",
+            "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt",
+            "https://raw.githubusercontent.com/shiftytr/proxy-list/master/proxy.txt",
+            "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt",
+            "https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/http.txt",
+            "https://raw.githubusercontent.com/jetkai/proxy-list/main/online-proxies/txt/proxies-http.txt",
+            "https://raw.githubusercontent.com/clarketm/proxy-list/master/proxy-list-raw.txt",
+            "https://raw.githubusercontent.com/sunny9577/proxy-scraper/master/proxies.txt",
+            "https://raw.githubusercontent.com/roosterkid/openproxylist/main/HTTPS_RAW.txt",
+            "https://raw.githubusercontent.com/opsxcq/proxy-list/master/list.txt",
+            "https://raw.githubusercontent.com/proxy4parsing/proxy-list/main/http.txt",
+            "http://rootjazz.com/proxies/proxies.txt",
+            "https://www.proxy-list.download/api/v1/get?type=http"
+        ]
 
         send = 0
         total = 0
         naxui = random.randint(1000, 9999)
         for url in prx:
             send += 1
-            async with session.get(url) as response:
-                req = await response.text()
-            req = re.sub(r"^\s+|\s+$", "", re.sub(r"^\s*$\n?", "", req, flags=re.MULTILINE), flags=re.MULTILINE).splitlines()
+            try:
+                async with session.get(url, timeout=5) as response:
+                    req = await response.text()
+                req = re.sub(r"^\s+|\s+$", "", re.sub(r"^\s*$\n?", "", req, flags=re.MULTILINE), flags=re.MULTILINE).splitlines()
 
-            if "socks5" in url:
-                req = ["socks5://" + prox.lstrip("socks5://") for prox in req]
+                if "socks5" in url:
+                    req = ["socks5://" + prox.lstrip("socks5://") for prox in req]
 
-            elif "socks4" in url:
-                req = ["socks4://" + prox.lstrip("socks4://") for prox in req]
+                elif "socks4" in url:
+                    req = ["socks4://" + prox.lstrip("socks4://") for prox in req]
 
-            elif "https" in url:
-                req = ["https://" + prox.lstrip("https://") for prox in req]
+                elif "https" in url:
+                    req = ["https://" + prox.lstrip("https://") for prox in req]
 
-            elif "http" in url:
-                req = ["http://" + prox.lstrip("http://") for prox in req]
+                elif "http" in url:
+                    req = ["http://" + prox.lstrip("http://") for prox in req]
 
-            total += len(req)
-            print(f"[{send}]", url, f"| {len(req)}")
+                total += len(req)
+                print(f"[{send}]", url, f"| {len(req)}")
 
-            with open(f"bazadian{naxui}.txt", "a", encoding="utf-8") as f:
-                f.write("\n".join([re.sub(r"^(([^:]+:){2}[^:]+):.*$", r"\1", prox) for prox in req]) + "\n")
+                with open(f"bazadian{naxui}.txt", "a", encoding="utf-8") as f:
+                    f.write("\n".join([re.sub(r"^(([^:]+:){2}[^:]+):.*$", r"\1", prox) for prox in req]) + "\n")
+            except Exception as e:
+                print(e)
 
         print(f"total {total}\n")
 
@@ -118,14 +143,14 @@ async def proxies(session):
 
         loop = asyncio.get_running_loop()
         result = await loop.run_in_executor(
-            None, ProxyChecker.checkAll, proxies_list, "http://gw.sandboxol.com", 2
+            None, ProxyChecker.checkAll, proxies_list, "http://gw.sandboxol.com", 5
         )
         print("all proxy checked")
 
         PROXY_WORK = [str(proxy) for proxy in result]
 
         print(f"Found {len(PROXY_WORK)} working proxies.")
-        await asyncio.sleep(60)
+        await asyncio.sleep(120)
 
 async def update_endpoints(session):
     global ENDPOINTS
@@ -139,11 +164,14 @@ async def main():
     ) as session:
         asyncio.create_task(update_endpoints(session))
         asyncio.create_task(cdn(session))
-        await asyncio.sleep(5)
-        lock = asyncio.Lock()
-        asyncio.create_task(create_accounts(session, lock))
-        await asyncio.sleep(15)
-        asyncio.create_task(flood_s(session, lock))
+        asyncio.create_task(proxies(session))
+        await asyncio.sleep(60)
+        print(PROXY_WORK)
+        #await asyncio.sleep(5)
+        #lock = asyncio.Lock()
+     #   asyncio.create_task(create_accounts(session, lock))
+      #  await asyncio.sleep(15)
+     #   asyncio.create_task(flood_s(session, lock))
         await asyncio.sleep(9999999999999999999999999999999999999999)
 
 ACCOUNTS = []
@@ -600,5 +628,3 @@ async def clan_parsing(session):
             continue
 
 asyncio.run(main())
-
-
