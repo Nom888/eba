@@ -21,8 +21,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo python -m pip install --upgrade pip
-          sudo pip install aiohttp pycryptodome icmplib || true
+          python -m pip install --upgrade pip
+          sudo python -m pip install aiohttp pycryptodome icmplib || true
           sudo pip install uvloop || true
 
       - name: Run main.py in 3 parallel processes
