@@ -143,14 +143,14 @@ async def proxies(session):
 
         loop = asyncio.get_running_loop()
         result = await loop.run_in_executor(
-            None, ProxyChecker.checkAll, proxies_list, "http://gw.sandboxol.com", 5
+            None, ProxyChecker.checkAll, proxies_list
         )
         print("all proxy checked")
 
         PROXY_WORK = [str(proxy) for proxy in result]
 
         print(f"Found {len(PROXY_WORK)} working proxies.")
-        await asyncio.sleep(120)
+        await asyncio.sleep(300)
 
 async def update_endpoints(session):
     global ENDPOINTS
@@ -165,11 +165,13 @@ async def main():
         asyncio.create_task(update_endpoints(session))
         asyncio.create_task(cdn(session))
         asyncio.create_task(proxies(session))
-        await asyncio.sleep(60)
-        print(PROXY_WORK)
-        #await asyncio.sleep(5)
-        #lock = asyncio.Lock()
-     #   asyncio.create_task(create_accounts(session, lock))
+        while True:
+            if not PROXY_WORK:
+                await asyncio.sleep(0.1)
+                continue
+            break
+        lock = asyncio.Lock()
+        asyncio.create_task(create_accounts(session, lock))
       #  await asyncio.sleep(15)
      #   asyncio.create_task(flood_s(session, lock))
         await asyncio.sleep(9999999999999999999999999999999999999999)
@@ -187,8 +189,9 @@ async def cr(session, lock):
         try:
             async with session.get(
                 f"https://{random.choice(DATA_CENTERS)}/user/api/v5/account/auth-token",
-                timeout=2,
+                timeout=5,
                 params={"q":query},
+                proxy=random.choice(PROXY_WORK),
                 headers={
                     "bmg-user-id": "0",
                     "bmg-device-id": android_id,
@@ -247,6 +250,7 @@ async def cr(session, lock):
                     "User-Agent": "okhttp/4.10.0"
                 }
             ) as response:
+                print(await response.text())
                 if (await response.json())["code"] == 1:
                     answer = await response.json()
                     user_id = str(int(answer["data"]["userId"]))
@@ -262,8 +266,9 @@ async def cr(session, lock):
                     xsign = get_xsign(f"/user/api/v1/user/register", nonce, xtime, body_string, android_id)
                     async with session.post(
                         f"https://{random.choice(DATA_CENTERS)}/user/api/v1/user/register",
-                        timeout=2,
+                        timeout=5,
                         data=body_string.encode(),
+                        proxy=random.choice(PROXY_WORK),
                         headers={
                             "bmg-device-id": android_id,
                             "userId": user_id,
@@ -319,13 +324,15 @@ async def cr(session, lock):
                             "User-Agent": "okhttp/4.10.0"
                         }
                     ) as response:
+                        print(await response.text())
                         if (await response.json())["code"] == 1:
                             answer = await response.json()
                             token = answer["data"]["accessToken"]
                             register_time = str(int(answer["data"]["registerTime"]))
                             async with lock: ACCOUNTS.append(f"{user_id}:{token}:{android_id}:{register_time}:{device_register_time}")
-        except:
-            continue
+        except Exception as e:
+            print(e)
+            await asyncio.sleep(5)
 
 async def create_accounts(session, lock):
         tasks = [asyncio.create_task(cr(session, lock)) for _ in range(100)]
