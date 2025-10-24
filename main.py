@@ -159,7 +159,7 @@ async def vless(session):
 
     hosts_to_ping = [server.split(":")[0] for server in result if server]
 
-    multiping_results = await icmplib.async_multiping(hosts_to_ping, count=1, timeout=0.5, concurrent_tasks=5000, privileged=True)
+    multiping_results = await icmplib.async_multiping(hosts_to_ping, count=1, timeout=0.5, concurrent_tasks=2500, privileged=True)
 
     for host in multiping_results:
         if host.is_alive:
