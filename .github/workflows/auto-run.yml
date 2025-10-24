@@ -28,7 +28,7 @@ jobs:
       - name: Run main.py in 3 parallel processes
         run: |
           for i in {1..1}; do
-            sudo ulimit -n 1048576 && sudo python -u main.py &
+            sudo sh -c 'ulimit -n 1048576 && python -u main.py &'
           done
           wait || true
 
