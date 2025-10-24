@@ -155,21 +155,16 @@ async def vless(session):
     async with session.get("https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt") as response:
         result = (await response.text()).split("\n")
 
-    async def pinge(server, lock):
-        if not server:
-            return
-        server, port = server.split(":")[:2]
-        print(server, port)
-        print(server, port)
-        await asyncio.sleep(random.choice([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]))
-        await icmplib.async_ping(server, count=1, timeout=5)
-        async with lock: VLESS_PING.append(server)
-
     result = [f"{match.group(1)}:{match.group(2)}:{''.join(line.split())}" for line in result if (match := __import__('re').search(r'vless://(?:.*@)?([^:?#\s/]+|\[[^\]]+\]):(\d+)', line.strip()))]
 
-    lock = asyncio.Lock()
-    tasks = [pinge(server, lock) for server in result]
-    await asyncio.gather(*tasks)
+    hosts_to_ping = [server.split(":")[0] for server in result if server]
+
+    multiping_results = await icmplib.async_multiping(hosts_to_ping, count=1, timeout=5)
+
+    for host in multiping_results:
+        if host.is_alive:
+            VLESS_PING.append(host.address)
+
     print("Выполнено")
     print(VLESS_PING)
 
