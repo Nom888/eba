@@ -28,6 +28,12 @@ jobs:
           cd proxy-scraper-checker
           ./target/release/proxy-scraper-checker
 
+      - name: Upload proxy lists artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: proxy-lists
+          path: proxy-scraper-checker/out/
+
       - name: Dispatch next workflow run
         if: always()
         env:
