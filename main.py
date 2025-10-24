@@ -95,7 +95,7 @@ async def proxies(session):
             "https://raw.githubusercontent.com/zenjahid/FreeProxy4u/refs/heads/main/socks5.txt",
             "https://raw.githubusercontent.com/databay-labs/free-proxy-list/refs/heads/master/socks5.txt",
             "https://raw.githubusercontent.com/Skillter/ProxyGather/refs/heads/master/proxies/working-proxies-socks5.txt",
-            "https://raw.githubusercontent.com/fyvri/fresh-proxy-list/archive/storage/classic/socks5.txt",
+            #"https://raw.githubusercontent.com/fyvri/fresh-proxy-list/archive/storage/classic/socks5.txt",
             "https://raw.githubusercontent.com/zebbern/Proxy-Scraper/refs/heads/main/socks5.txt"
         ]
 
@@ -422,6 +422,7 @@ async def flood_s(session, lock):
                             "User-Agent": "okhttp/4.10.0"
                         }
                     ) as response:
+                        print(await response.text())
                         pass
 
                     nonce = str(uuid.uuid4())
@@ -471,8 +472,10 @@ async def flood_s(session, lock):
                             "User-Agent": "okhttp/4.10.0"
                         }
                     ) as response:
+                        print(await response.text())
                         pass
-                except:
+                except Exception as e:
+                    print(e)
                     continue
 
     tasks = [asyncio.create_task(flood_k()) for _ in range(100)]
