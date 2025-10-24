@@ -19,16 +19,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install aiohttp pycryptodome pyroxy_real2 aiohttp-socks || true
-          pip install uvloop || true
+          git clone https://github.com/monosans/proxy-scraper-checker.git
+          cd proxy-scraper-checker
+          cargo build --release
 
-      - name: Run main.py in 3 parallel processes
+      - name: Run
         run: |
-          for i in {1..1}; do
-            python -u main.py &
-          done
-          wait || true
+          ./target/release/proxy-scraper-checker
 
       - name: Dispatch next workflow run
         if: always()
