@@ -25,7 +25,7 @@ jobs:
 
       - name: Run
         run: |
-          ls -lR target
+          find $GITHUB_WORKSPACE -type f -name "proxy-scraper-checker"
           ./target/release/proxy-scraper-checker
 
       - name: Dispatch next workflow run
