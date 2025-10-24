@@ -153,7 +153,7 @@ VLESS_PING = []
 
 async def vless(session):
     async with session.get("https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt") as response:
-        result = (await response.text()).split("\n")[:50]
+        result = (await response.text()).split("\n")[:1000]
 
     result = [f"{match.group(1)}:{match.group(2)}:{''.join(line.split())}" for line in result if (match := __import__('re').search(r'vless://(?:.*@)?((?:(?:\d{1,3}\.){3}\d{1,3})|\[[^\]]+\]):(\d+)', line.strip()))]
     print(result)
