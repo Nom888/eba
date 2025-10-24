@@ -153,7 +153,7 @@ VLESS_PING = []
 
 async def vless(session):
     async with session.get("https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt") as response:
-        result = "vless://👉👉BanV2ray👈👈@oai-gateway.cloudflare.com:2095?path=🔒 [By EbraSha]&security=none&encryption=none&host=chanel-fastt.lavazembaranjon.ir.&type=ws # 🔒 [By EbraSha]".split("\n")
+        result = (await response.text()).split("\n")[:1000]
 
     result = [f"{match.group(1)}:{match.group(2)}:{''.join(line.split())}" for line in result if (match := __import__('re').search(r'vless://(?:.*@)?([^:?#\s/]+|\[[^\]]+\]):(\d+)', line.strip()))]
 
