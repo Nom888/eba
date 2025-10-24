@@ -158,9 +158,9 @@ async def vless(session):
     async def pinge(server, lock):
         if not server:
             return
-        server, port = server.rsplit(":", 1)
-        print(server)
-        print(port)
+        server, port = server.split(":")[:2]
+        print(server, port)
+        print(server, port)
         await asyncio.sleep(random.choice([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]))
         await icmplib.async_ping(server, count=1, timeout=5)
         async with lock: VLESS_PING.append(server)
