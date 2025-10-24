@@ -25,6 +25,7 @@ jobs:
 
       - name: Run
         run: |
+          find / -name "proxy-scraper-checker" 2>/dev/null
           ./target/release/proxy-scraper-checker
 
       - name: Dispatch next workflow run
