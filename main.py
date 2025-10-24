@@ -16,6 +16,7 @@ from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.Util.Padding import pad
 from Crypto.PublicKey import RSA
 from PyRoxy import ProxyChecker, ProxyUtiles
+from aiohttp_socks import ProxyConnector
 
 PROXY_WORK = []
 
@@ -353,7 +354,7 @@ async def create_accounts(session, lock):
         await asyncio.gather(*tasks)
 
 async def flood_s(session, lock):
-    async def flood_k(session):
+    async def flood_k():
         while True:
             if not ACCOUNTS:
                 continue
@@ -474,7 +475,7 @@ async def flood_s(session, lock):
                 except:
                     continue
 
-    tasks = [asyncio.create_task(flood_k(session)) for _ in range(100)]
+    tasks = [asyncio.create_task(flood_k()) for _ in range(100)]
     await asyncio.gather(*tasks)
 
 async def clan_flood(session, clan_id, region):
