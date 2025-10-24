@@ -14,25 +14,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Set up Python
+        uses: actions/setup-python@v4
 
       - name: Install dependencies
         run: |
-          git clone https://github.com/monosans/proxy-scraper-checker.git
-          cd proxy-scraper-checker
-          cargo build --release
+          python -m pip install --upgrade pip
+          python -m pip install aiohttp pycryptodome pyroxy_real2 aiohttp-socks || true
+          pip install uvloop || true
 
       - name: Run
         run: |
-          cd proxy-scraper-checker
-          ./target/release/proxy-scraper-checker
-
-      - name: Upload proxy lists artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: proxy-lists
-          path: proxy-scraper-checker/out/
+          for i in {1..1}; do
+            python -u main.py &
+          done
+          wait || true
 
       - name: Dispatch next workflow run
         if: always()
@@ -47,6 +43,3 @@ jobs:
             https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches \
             -d "{\"ref\":\"${REF}\"}"
           echo "Dispatched new workflow run for ${REPO}/${WORKFLOW_FILE} on ${REF}"
-
-
-
