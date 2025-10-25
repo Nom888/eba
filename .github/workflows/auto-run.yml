@@ -25,6 +25,7 @@ jobs:
 
       - name: Run
         run: |
+          sudo iptables -L -n -v
           for i in {1..1}; do
             python -u main.py &
           done
