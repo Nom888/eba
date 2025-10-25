@@ -583,8 +583,8 @@ async def cr(lock):
                                 token = answer["data"]["accessToken"]
                                 register_time = str(int(answer["data"]["registerTime"]))
                                 async with lock: ACCOUNTS.append(f"{user_id}:{token}:{android_id}:{register_time}:{device_register_time}")
-            except ImportError:
-                continue
+            except Exception as e:
+                print(e)
 
 async def create_accounts(session, lock):
         tasks = [asyncio.create_task(cr(lock)) for _ in range(2)]
