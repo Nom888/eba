@@ -18,7 +18,237 @@ from Crypto.PublicKey import RSA
 from PyRoxy import ProxyChecker, ProxyUtiles
 from aiohttp_socks import ProxyConnector
 
-PROXY_WORK = []
+PROXY_WORK = proxy_list = [
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-0rk39qms:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-1tbqiu2v:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-2cb6p5i0:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-3scgnah3:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-40hnhim0:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-43kh2quh:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-4ykwpbb6:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-50jldpsn:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-75q2kzxm:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-8auj2xzb:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-8f4p068t:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-8wfdnodf:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-8xp2naeo:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-9n0h5qlr:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-a0dy8naa:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-atfy4hx7:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-bua1v4y7:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-ci4055vu:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-e0goizg9:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-e18et01t:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-fhfkfdy4:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-fkka734i:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-gc99zxzw:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-gvcy7a5t:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-j6hmqxmw:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-k979swuk:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-kkbsudxt:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-kpe9joaw:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-kxe28cb9:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-ky3jv5yi:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-mrvk9dnj:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-n573nyyw:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-nam52079:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-ng9uky3z:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-nu57kjrk:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-qmfhlm4c:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-r2xxe8rx:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-rg89p7m9:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-s6nckrky:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-suco4wc9:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-sxh6gtnd:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-tp6t86h8:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-ucph5q3d:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-vb8r92vt:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-vlqejjrc:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-x5dn3xuq:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-xniq1nbs:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-y5669ldn:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-zmz286a6:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-eu-sessid-zv8qaasa:Heroinwater9@eu.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-3giiu3s3:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-6fb0gxvt:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-73adf2oq:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-7jk1e8cl:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-c8qid4rv:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-c94zr51z:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-cg2olb21:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-d9bcd77u:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-dn9vvyki:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-dyqbd27p:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-f8bd92mg:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-fk1zv6ng:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-fxxfvd1y:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-fzp2g2cz:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-jxdz8szs:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-lwjfayhi:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-mkaqpg9m:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-mqhbh4er:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-mxg02sou:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-otsufmbe:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-oyw271xa:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-pkdm0l2a:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-qazfsonf:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-svpwf8t3:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-upem95nv:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-vjps31ml:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-vlgoftrt:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-walr6weh:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-x0ub3tfs:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-region-us-sessid-z3o45zyy:Heroinwater9@na.proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-03taiszx:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-0a1db9qo:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-0e4pmik3:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-0m95bpxi:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-0rro28xy:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-0st8uhxk:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-0ulxbvjj:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-0v5tykjo:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-0z15ctyz:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-18g63xiv:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-1ns0t7a5:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-1xkha0fs:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-23k9ypf1:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-2421e4xf:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-25ph1he2:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-29abqzz9:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-2hv4hpwm:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-2nlbzhjz:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-2sixbjv2:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-331vcshz:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-36omofx1:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-36rcyp6c:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-3lpgx2ta:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-3x91gutm:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-4fobfsx8:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-4g4y0jqe:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-4s082qmx:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-5d34ohat:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-5kr5gq0j:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-5ms9qtrk:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-5r2okxgh:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-6g0yzs4p:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-6ufan44f:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-6ujtuu35:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-6v4bhrb6:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-73v48r86:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-794r515u:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-7gu5lg1l:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-7t7hc82c:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-7towod4c:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-7unu1fvz:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-8748x1d3:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-8otg7u30:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-8txgslb4:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-920p5wxf:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-9k9y1qh2:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-a18l6g02:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-a22qtt9s:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-ahj76jqr:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-anwjwev1:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-aw0yey8a:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-ayloo1kb:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-b2foh23d:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-bf339tbi:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-bkbhy1a8:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-bqzh4tww:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-c8ukf892:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-cgd262ek:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-cp3ldj7w:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-d1zgpzgx:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-d3fhk6om:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-d5174ux9:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-d6g6yjba:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-dgvqk3m1:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-ds3mg66c:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-e9x49c1s:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-ee38tb4k:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-ehxcvok0:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-ekeel3qw:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-enimrghp:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-fbwu478p:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-fqeiwcdm:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-fw9lmcf8:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-gans6lng:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-gf8orv5f:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-gkgv60sh:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-gvtnjwe5:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-hvo67dcj:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-i1al0p1u:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-ib6hl1hu:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-ibpul7j4:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-izvrwxmt:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-j65yjh3s:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-k5uyxq9d:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-ka4ibou7:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-kop85qc7:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-kpkt7zrt:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-krkq4p01:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-l21n9mzo:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-l34822zn:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-l54l98ns:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-ll2f26b1:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-lzzxyiqh:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-m3px0qai:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-mfvvzk6a:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-mgjj5e7u:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-mh1s4xbm:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-non5xgjn:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-nqdkuv14:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-nvnwe510:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-o9aofaxz:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-oa0b9i2f:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-os8jz8bx:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-ox4nr0u6:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-p2v3xtzn:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-pdyxz7i1:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-penmeme3:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-phe8bkq6:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-pm6f0rn8:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-pnt2h8oh:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-pp4tfdyt:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-pxlkcbbo:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-q13wlo6m:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-qgoam8jj:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-qhdn37ln:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-qmt3ns5m:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-qxbugwad:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-r2balofj:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-rc2vp7v2:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-rgmonsp0:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-rw5tm2lh:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-sthr6n9m:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-swipfp7w:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-swtvbyek:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-sx4x93j7:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-tclgsxnc:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-terthfxj:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-tmoavpey:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-u28x8ctf:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-ua7heupl:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-v2gzeqli:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-v8l5cfkq:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-v9l3upn6:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-vb5yh5v8:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-vpji6kpa:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-w52jowid:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-w7v557kz:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-wiatbkqn:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-wlnuyrqk:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-xh93ms7a:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-xirix9wg:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-xy07wish:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-yiw3gzkv:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-yuqhxo23:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-ywdf2wwt:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-yz8fkqp6:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-z3cbqpez:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-zih9xj66:Heroinwater9@proxy.piaproxy.com:7000",
+    "socks5://user-HEROINWATER_D4hkN-sessid-zv463mj9:Heroinwater9@proxy.piaproxy.com:7000"
+]
 WORKERS = [
     "https://holy-cell-8ea5.xstee1zzbg.workers.dev/",
     "https://crimson-tree-1693.xstee1zzbg.workers.dev/",
@@ -189,23 +419,24 @@ async def main():
     ) as session:
         asyncio.create_task(update_endpoints(session))
         asyncio.create_task(cdn(session))
-        asyncio.create_task(proxies(session))
+        #asyncio.create_task(proxies(session))
         while True:
             if not PROXY_WORK:
                 await asyncio.sleep(0.1)
                 continue
             break
+        await asyncio.sleep(20)
         lock = asyncio.Lock()
         asyncio.create_task(create_accounts(session, lock))
-        await asyncio.sleep(15)
-        asyncio.create_task(flood_s(session, lock))
+        #await asyncio.sleep(15)
+        #asyncio.create_task(flood_s(session, lock))
         await asyncio.sleep(9999999999999999999999999999999999999999)
 
 ACCOUNTS = []
 
-async def cr(session, lock):
+async def cr(lock):
     while True:
-        if DATA_CENTERS:
+        async with aiohttp.ClientSession(connector=ProxyConnector.from_url(random.choice(PROXY_WORK), ssl=False, limit=0)) as session:
             android_id = "".join(random.choice("0123456789abcdef") for _ in range(16))
             nonce = str(uuid.uuid4())
             query = get_enc_query(android_id, nonce)
@@ -214,7 +445,7 @@ async def cr(session, lock):
             xsign = get_xsign("/user/api/v5/account/auth-token", nonce, xtime, f"q={query}", android_id)
             try:
                 async with session.get(
-                    f"{random.choice(WORKERS)}https/gw.sandboxol.com/user/api/v5/account/auth-token",
+                    f"https://gw.sandboxol.com/user/api/v5/account/auth-token",
                     timeout=2,
                     params={"q":query},
                     headers={
@@ -274,6 +505,7 @@ async def cr(session, lock):
                         "User-Agent": "okhttp/4.10.0"
                     }
                 ) as response:
+                    print(await response.text())
                     if (await response.json())["code"] == 1:
                         answer = await response.json()
                         user_id = str(int(answer["data"]["userId"]))
@@ -288,7 +520,7 @@ async def cr(session, lock):
                         body_string = f'{{"decorationPicUrl":"http://static.sandboxol.com/sandbox/avatar/male.png","inviteCode":"","details":"httрs://t.mе/kn_ew (in telegram @kn_ew)\\nBruteforce account","decorationPicUrl":"http://staticgs.sandboxol.com/avatar/1761081787482114.jpg","nickName":"{nickname}","picType":1,"sex":1}}'
                         xsign = get_xsign(f"/user/api/v1/user/register", nonce, xtime, body_string, android_id)
                         async with session.post(
-                            f"{random.choice(WORKERS)}https/gw.sandboxol.com/user/api/v1/user/register",
+                            f"https://gw.sandboxol.com/user/api/v1/user/register",
                             timeout=2,
                             data=body_string.encode(),
                             headers={
@@ -345,18 +577,17 @@ async def cr(session, lock):
                                 "User-Agent": "okhttp/4.10.0"
                             }
                         ) as response:
+                            print(await response.text())
                             if (await response.json())["code"] == 1:
                                 answer = await response.json()
                                 token = answer["data"]["accessToken"]
                                 register_time = str(int(answer["data"]["registerTime"]))
                                 async with lock: ACCOUNTS.append(f"{user_id}:{token}:{android_id}:{register_time}:{device_register_time}")
-                        await asyncio.sleep(0.5)
-            except Exception as e:
-                print(e)
-                await asyncio.sleep(5)
+            except ImportError:
+                continue
 
 async def create_accounts(session, lock):
-        tasks = [asyncio.create_task(cr(session, lock)) for _ in range(2)]
+        tasks = [asyncio.create_task(cr(lock)) for _ in range(2)]
         await asyncio.gather(*tasks)
 
 async def flood_s(session, lock):
@@ -638,4 +869,3 @@ async def clan_parsing(session):
             continue
 
 asyncio.run(main())
-
