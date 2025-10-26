@@ -20,7 +20,7 @@ from aiohttp_socks import ProxyConnector
 
 PROXY_WORK = []
 WORKERS = [
-    "https://super-flower-5d48.kolyagrozy.workers.dev/" 
+    "https://super-flower-5d48.kolyagrozy.workers.dev/",
     "https://orange-queen-66f1.kolyagrozy.workers.dev/",
     "https://fragrant-lake-e1b5.kolyagrozy.workers.dev/",
     "https://lively-sky-e832.kolyagrozy.workers.dev/",
