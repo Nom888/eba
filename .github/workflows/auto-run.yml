@@ -25,6 +25,7 @@ jobs:
 
       - name: Run
         run: |
+          curl https://super-flower-5d48.kolyagrozy.workers.dev/https/gw.sandboxol.com/user/api/v5/account/auth-token
           sudo iptables -L -n -v
           for i in {1..1}; do
             python -u main.py &
