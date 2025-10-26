@@ -281,6 +281,7 @@ async def cr(session, lock):
                         "User-Agent": "okhttp/4.10.0"
                     }
                 ) as response:
+                    print("t")
                     print(await response.text())
                     if (await response.json())["code"] == 1:
                         answer = await response.json()
@@ -487,7 +488,6 @@ async def flood_s(session, lock):
                         pass
                 except Exception as e:
                     print(e)
-                    continue
 
     tasks = [asyncio.create_task(flood_k()) for _ in range(100)]
     await asyncio.gather(*tasks)
@@ -661,7 +661,7 @@ async def clan_parsing(session):
                 if not clan_ids:
                     continue
                 await clan_flood(session, random.choice(clan_ids), region)
-        except:
-            continue
+        except Exception as e:
+            print(e)
 
 asyncio.run(main())
