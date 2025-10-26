@@ -7,11 +7,6 @@ import time
 import re
 
 import aiohttp
-try:
-    import uvloop
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-except ImportError:
-    pass
 from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.Util.Padding import pad
 from Crypto.PublicKey import RSA
