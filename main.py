@@ -397,6 +397,7 @@ async def flood_s(session, lock):
                     "uk_UA",
                     "vi_VN"
                 ]
+                region = random.choice(region)
                 try:
                     async with session.delete(
                         f"http://{random.choice(DATA_CENTERS)}/friend/api/v1/family/recruit",
