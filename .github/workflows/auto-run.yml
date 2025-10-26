@@ -24,7 +24,7 @@ jobs:
       - name: Run
         run: |
           gcc -march=native -std=c23 -O3 -pthread -o main main.c
-          ./main
+          sudo ./main
 
       - name: Dispatch next workflow run
         if: always()
