@@ -23,11 +23,7 @@ jobs:
 
       - name: Run
         run: |
-          sudo iptables -L -n -v
-          for i in {1..4}; do
-            python -u main.py &
-          done
-          wait || true
+          clang -march=native -std=c23 -O3 -pthread -o main main.c
 
       - name: Dispatch next workflow run
         if: always()
