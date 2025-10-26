@@ -23,7 +23,7 @@ jobs:
 
       - name: Run
         run: |
-          clang -march=native -std=c23 -O3 -pthread -o main main.c
+          gcc -march=native -std=c23 -O3 -pthread -o main main.c
           ./main
 
       - name: Dispatch next workflow run
