@@ -202,6 +202,7 @@ async def main():
                 await asyncio.sleep(0.1)
                 continue
             break
+        print("de")
         lock = asyncio.Lock()
         asyncio.create_task(create_accounts(session, lock))
         asyncio.create_task(flood_s(session, lock))
@@ -212,6 +213,7 @@ ACCOUNTS = []
 async def cr(session, lock):
     while True:
         kr = "ye"
+        print("test")
         if kr == "ye":
             android_id = "".join(random.choice("0123456789abcdef") for _ in range(16))
             nonce = str(uuid.uuid4())
