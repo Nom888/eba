@@ -19,12 +19,17 @@ jobs:
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
+          python -m pip install aiohttp pycryptodome pyroxy_real2 aiohttp-socks || true
           pip install uvloop || true
 
       - name: Run
         run: |
-          clang -march=native -std=c23 -O3 -pthread -o main main.c
-          sudo ./main
+          sudo iptables -L -n -v
+          for i in {1..1}; do
+            python -u main.py &
+          done
+          wait || true
 
       - name: Dispatch next workflow run
         if: always()
