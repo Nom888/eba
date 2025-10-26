@@ -219,6 +219,7 @@ async def cr(session, lock):
             android_sign = get_android_sign(android_id)
             xtime = str(int(time.time()))
             xsign = get_xsign("/user/api/v5/account/auth-token", nonce, xtime, f"q={query}", android_id)
+            print("e)
             try:
                 async with session.get(
                     f"{random.choice(WORKERS)}https/gw.sandboxol.com/user/api/v5/account/auth-token",
@@ -281,7 +282,6 @@ async def cr(session, lock):
                         "User-Agent": "okhttp/4.10.0"
                     }
                 ) as response:
-                    print("t")
                     print(await response.text())
                     if (await response.json())["code"] == 1:
                         answer = await response.json()
@@ -361,8 +361,8 @@ async def cr(session, lock):
                                 register_time = str(int(answer["data"]["registerTime"]))
                                 async with lock: ACCOUNTS.append(f"{user_id}:{token}:{android_id}:{register_time}:{device_register_time}")
                 await asyncio.sleep(0.5)
-            except Exception as e:
-                print(e)
+            except ImportError:
+                print("b")
 
 async def create_accounts(session, lock):
         tasks = [asyncio.create_task(cr(session, lock)) for _ in range(5)]
