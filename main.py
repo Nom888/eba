@@ -215,6 +215,7 @@ async def cr(session, lock):
         kr = "ye"
         print("test")
         if kr == "ye":
+            print("io")
             android_id = "".join(random.choice("0123456789abcdef") for _ in range(16))
             nonce = str(uuid.uuid4())
             query = get_enc_query(android_id, nonce)
