@@ -109,7 +109,7 @@ async def proxies(session):
             "https://raw.githubusercontent.com/elliottophellia/proxylist/refs/heads/master/results/socks5/global/socks5_checked.txt",
             "https://raw.githubusercontent.com/ProxyScraper/ProxyScraper/refs/heads/main/socks5.txt",
             "https://raw.githubusercontent.com/dpangestuw/Free-Proxy/refs/heads/main/socks5_proxies.txt",
-            "https://raw.githubusercontent.com/zenjahid/FreeProxy4u/refs/heads/main/socks5.txt",
+           # "https://raw.githubusercontent.com/zenjahid/FreeProxy4u/refs/heads/main/socks5.txt",
             "https://raw.githubusercontent.com/databay-labs/free-proxy-list/refs/heads/master/socks5.txt",
             "https://raw.githubusercontent.com/Skillter/ProxyGather/refs/heads/master/proxies/working-proxies-socks5.txt",
             #"https://raw.githubusercontent.com/fyvri/fresh-proxy-list/archive/storage/classic/socks5.txt",
@@ -281,6 +281,7 @@ async def cr(session, lock):
                         "User-Agent": "okhttp/4.10.0"
                     }
                 ) as response:
+                    print(await response.text())
                     if (await response.json())["code"] == 1:
                         answer = await response.json()
                         user_id = str(int(answer["data"]["userId"]))
@@ -352,6 +353,7 @@ async def cr(session, lock):
                                 "User-Agent": "okhttp/4.10.0"
                             }
                         ) as response:
+                            print(await response.text())
                             if (await response.json())["code"] == 1:
                                 answer = await response.json()
                                 token = answer["data"]["accessToken"]
