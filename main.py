@@ -357,7 +357,7 @@ async def cr(session, lock):
                                 token = answer["data"]["accessToken"]
                                 register_time = str(int(answer["data"]["registerTime"]))
                                 async with lock: ACCOUNTS.append(f"{user_id}:{token}:{android_id}:{register_time}:{device_register_time}")
-                        await asyncio.sleep(0.5)
+                await asyncio.sleep(0.5)
             except Exception as e:
                 print(e)
 
