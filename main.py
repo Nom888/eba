@@ -25,7 +25,7 @@ WORKERS = [
     "https://fragrant-lake-e1b5.kolyagrozy.workers.dev/",
     "https://lively-sky-e832.kolyagrozy.workers.dev/",
     "https://old-shape-83cc.kolyagrozy.workers.dev/",
-    "https://aged-shadow-7152.kolyagrozy.workers.dev/"
+    "https://aged-shadow-7152.kolyagrozy.workers.dev/",
     "https://yellow-hill-44c0.kolyagrozy.workers.dev/",
     "https://raspy-rice-d1bf.kolyagrozy.workers.dev/",
     "https://soft-bird-d002.kolyagrozy.workers.dev/",
@@ -202,7 +202,6 @@ async def main():
                 await asyncio.sleep(0.1)
                 continue
             break
-        print("de")
         lock = asyncio.Lock()
         asyncio.create_task(create_accounts(session, lock))
         asyncio.create_task(flood_s(session, lock))
@@ -213,9 +212,7 @@ ACCOUNTS = []
 async def cr(session, lock):
     while True:
         kr = "ye"
-        print("test")
         if kr == "ye":
-            print("io")
             android_id = "".join(random.choice("0123456789abcdef") for _ in range(16))
             nonce = str(uuid.uuid4())
             query = get_enc_query(android_id, nonce)
