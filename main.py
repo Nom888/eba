@@ -219,7 +219,7 @@ async def cr(session, lock):
             android_sign = get_android_sign(android_id)
             xtime = str(int(time.time()))
             xsign = get_xsign("/user/api/v5/account/auth-token", nonce, xtime, f"q={query}", android_id)
-            print("e)
+            print("e")
             try:
                 async with session.get(
                     f"{random.choice(WORKERS)}https/gw.sandboxol.com/user/api/v5/account/auth-token",
