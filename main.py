@@ -364,7 +364,7 @@ async def cr(session, lock):
                 print(e)
 
 async def create_accounts(session, lock):
-        tasks = [asyncio.create_task(cr(session, lock)) for _ in range(5)]
+        tasks = [asyncio.create_task(cr(session, lock)) for _ in range(2)]
         await asyncio.gather(*tasks)
 
 async def flood_s(session, lock):
