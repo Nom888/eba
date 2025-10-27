@@ -196,14 +196,10 @@ async def main():
     ) as session:
         asyncio.create_task(update_endpoints(session))
         asyncio.create_task(cdn(session))
-        asyncio.create_task(proxies(session))
-        while True:
-            if not PROXY_WORK:
-                await asyncio.sleep(0.1)
-                continue
-            break
+        await asyncio.sleep(5)
         lock = asyncio.Lock()
         asyncio.create_task(create_accounts(session, lock))
+        await asyncio.sleep(1000000)
         asyncio.create_task(flood_s(session, lock))
         await asyncio.sleep(9999999999999999999999999999999999999999)
 
@@ -364,8 +360,8 @@ async def cr(session, lock):
                 print(e)
 
 async def create_accounts(session, lock):
-        tasks = [asyncio.create_task(cr(session, lock)) for _ in range(2)]
-        await asyncio.gather(*tasks)
+    tasks = [asyncio.create_task(cr(session, lock)) for _ in range(2)]
+    await asyncio.gather(*tasks)
 
 async def flood_s(session, lock):
     async def flood_k():
