@@ -25,8 +25,9 @@ jobs:
 
       - name: Run
         run: |
+          pip install py-spy
           for i in {1..1}; do
-            python -u main.py &
+            python -u main.py & py-spy top --pid $(pgrep -f main.py)
           done
           wait || true
 
