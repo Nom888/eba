@@ -15,7 +15,6 @@ except ImportError:
 from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.Util.Padding import pad
 from Crypto.PublicKey import RSA
-from aiohttp_socks import ProxyConnector
 
 #PROXY_WORK = [f"socks5://127.0.0.1:{port}" for port in range(9001, 9032)]
 PROXY_WORK = [
