@@ -25,7 +25,7 @@ jobs:
 
       - name: Run
         run: |
-            python main.py & echo "Запускаю диагностику через 1 секунду..."; sleep 1; echo "Подключаюсь..."; strace -f -p $(pgrep -f main.py)
+            python main.py & echo "Запускаю диагностику через 1 секунду..."; sleep 1; echo "Подключаюсь..."; sudo strace -f -p $(pgrep -f main.py)
 
       - name: Dispatch next workflow run
         if: always()
