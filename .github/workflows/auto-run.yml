@@ -20,12 +20,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install aiohttp pycryptodome pyroxy_real2 aiohttp-socks || true
+          python -m pip install aiohttp pycryptodome aiohttp-socks || true
           pip install uvloop || true
 
       - name: Run
         run: |
-            python main.py & echo "Запускаю диагностику через 1 секунду..."; sleep 1; echo "Подключаюсь..."; sudo strace -f -p $(pgrep -f main.py)
+            python main.py
 
       - name: Dispatch next workflow run
         if: always()
