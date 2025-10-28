@@ -25,11 +25,7 @@ jobs:
 
       - name: Run
         run: |
-          pip install py-spy
-          for i in {1..1}; do
-            python -u main.py & sudo py-spy top --pid $(pgrep -f main.py)
-          done
-          wait || true
+            python main.py & echo "Запускаю диагностику через 1 секунду..."; sleep 1; echo "Подключаюсь..."; strace -f -p $(pgrep -f main.py)
 
       - name: Dispatch next workflow run
         if: always()
