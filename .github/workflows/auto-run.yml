@@ -18,6 +18,8 @@ jobs:
         run: |
           git clone --recurse-submodules -b v20.74.0 https://github.com/uNetworking/uWebSockets.git
           cd uWebSockets
+          cd uSockets
+          make
 
       - name: Start Server
         run: |
