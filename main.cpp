@@ -446,19 +446,17 @@ int main() {
 </body>
 </html>
 )";
-    
-    uWS::App app;
-    app.get("/*", [content](auto *res, auto *req) {
+
+    uWS::App{}.get("/*", [](auto *res, auto *req) {
         (void) req;
         res->writeStatus("200 OK")
            ->writeHeader("Content-Type", "text/html")
            ->end(content);
-    }).listen(port, US_LISTEN_REUSE_PORT, [port](auto *listen_socket) {
+    }).listen("0.0.0.0", port, US_LISTEN_REUSE_PORT, [port](auto *listen_socket) {
         if (listen_socket) {
             std::cout << "Процесс " << getpid() << " слушает порт " << port << std::endl;
         } else {
             std::cout << "Процесс " << getpid() << " НЕ СМОГ занять порт " << port << std::endl;
-            exit(1);
         }
     }).run();
 }
