@@ -1,4 +1,4 @@
-name: Auto Run main.py Continuously (3 Threads)
+name: Server
 
 on:
   workflow_dispatch:
@@ -7,36 +7,19 @@ on:
 
 jobs:
   run-main:
-    timeout-minutes: 360   # Максимум на GitHub-hosted runner (6 часов)
+    timeout-minutes: 360
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-
-      - name: Install dependencies
+      - name: Dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install aiohttp pycryptodome aiohttp-socks || true
           pip install uvloop || true
 
-      - name: Run
+      - name: Start Server
         run: |
-            python main.py
-
-      - name: Dispatch next workflow run
-        if: always()
-        env:
-          REPO: ${{ github.repository }}
-          WORKFLOW_FILE: auto-run.yml
-          REF: main
-        run: |
-          curl -s -X POST \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches \
-            -d "{\"ref\":\"${REF}\"}"
-          echo "Dispatched new workflow run for ${REPO}/${WORKFLOW_FILE} on ${REF}"
+            ./main
