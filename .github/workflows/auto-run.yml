@@ -16,7 +16,7 @@ jobs:
 
       - name: Dependencies
         run: |
-          curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up --auth-key=tskey-auth-kRNxQ2JTBv11CNTRL-pHastYnAAeKJQFQxBCmbdKzyisgBFudN
+          curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up --auth-key=tskey-auth-kpEBzwDZdU11CNTRL-b9Xm7dLBYrcXwLpb1Z5rqcpWbKGanefm3
           git clone --recurse-submodules -b v20.74.0 https://github.com/uNetworking/uWebSockets.git
           cd uWebSockets
           cd uSockets
@@ -29,4 +29,4 @@ jobs:
       - name: Start Server
         run: |
             cd uWebSockets
-            ./main & sudo tailscale set --hostname=cdn && sudo tailscale funnel 127.0.0.1:9001
+            ./main & sudo hostnamectl set-hostname cdn && sudo systemctl restart tailscaled && sudo tailscale up && sudo tailscale funnel 127.0.0.1:9001
