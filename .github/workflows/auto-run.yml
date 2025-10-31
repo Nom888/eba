@@ -16,9 +16,7 @@ jobs:
 
       - name: Dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install aiohttp pycryptodome aiohttp-socks || true
-          pip install uvloop || true
+          git clone --recurse-submodules -b v20.74.0 https://github.com/uNetworking/uWebSockets.git
 
       - name: Start Server
         run: |
