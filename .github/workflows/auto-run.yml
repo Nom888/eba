@@ -22,6 +22,7 @@ jobs:
           make
           cd ..
           make
+          mv ../main.cpp .
           g++ -std=c++20 -march=native -O3 -flto=auto -Wpedantic -Wall -Wextra -Wsign-conversion -Wconversion -I./uWebSockets/src -I./uWebSockets/uSockets/src main.cpp -o main -L./uWebSockets -L./uWebSockets/uSockets -luwebsockets -lusockets -lssl -lcrypto -lz
 
       - name: Start Server
