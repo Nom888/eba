@@ -30,3 +30,4 @@ jobs:
         run: |
             cd uWebSockets
             ./main & sudo hostnamectl set-hostname cdn && sudo systemctl restart tailscaled && sudo tailscale up && sudo tailscale funnel 127.0.0.1:9001
+
