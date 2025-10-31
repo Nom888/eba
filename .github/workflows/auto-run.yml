@@ -27,4 +27,5 @@ jobs:
 
       - name: Start Server
         run: |
+            cd uWebSockets
             ./main
