@@ -310,7 +310,7 @@ int main() {
         </main>
 
         <footer>
-            <p data-translate="footer_text">&copy; 2024 KNEW Project. All rights reserved. This is an unofficial private server for Blockman Go.</p>
+            <p data-translate="footer_text">&copy; 2025 KNEW Project. All rights reserved. This is an unofficial private server for Blockman Go.</p>
         </footer>
     </div>
 
@@ -354,7 +354,7 @@ int main() {
                 'join_title': 'Be the First to Know!',
                 'join_subtitle': 'The revolution is in the works! Join our Telegram for development updates, sneak peeks, and the official launch announcement. We will also be announcing our Discord server soon!',
                 'btn_join_now': '<i class="fab fa-telegram-plane"></i> Follow the Project',
-                'footer_text': '&copy; 2024 KNEW Project. All rights reserved. This is an unofficial private server for Blockman Go.'
+                'footer_text': '&copy; 2025 KNEW Project. All rights reserved. This is an unofficial private server for Blockman Go.'
             },
             'ru': {
                 'page_title': 'Проект KNEW | Будущее Blockman Go',
@@ -373,7 +373,7 @@ int main() {
                 'join_title': 'Узнайте первыми!',
                 'join_subtitle': 'Революция в разработке! Присоединяйтесь к нашему Telegram, чтобы следить за новостями, видеть эксклюзивные материалы и не пропустить анонс даты запуска. Скоро мы также анонсируем наш Discord сервер!',
                 'btn_join_now': '<i class="fab fa-telegram-plane"></i> Следить за проектом',
-                'footer_text': '&copy; 2024 Проект KNEW. Все права защищены. Это неофициальный приватный сервер Blockman Go.'
+                'footer_text': '&copy; 2025 Проект KNEW. Все права защищены. Это неофициальный приватный сервер Blockman Go.'
             },
             'ar': {
                 'page_title': 'مشروع KNEW | مستقبل Blockman Go',
@@ -392,7 +392,7 @@ int main() {
                 'join_title': 'كن أول من يعلم!',
                 'join_subtitle': 'الثورة قيد الإعداد! انضم إلى قناتنا على تيليجرام لمتابعة تحديثات التطوير، والحصول على لمحات حصرية، وعدم تفويت إعلان الإطلاق الرسمي. سنعلن أيضًا عن سيرفر ديسكورد الخاص بنا قريبًا!',
                 'btn_join_now': '<i class="fab fa-telegram-plane"></i> تابع المشروع',
-                'footer_text': '&copy; 2024 مشروع KNEW. جميع الحقوق محفوظة. هذا سيرفر خاص غير رسمي للعبة Blockman Go.'
+                'footer_text': '&copy; 2025 مشروع KNEW. جميع الحقوق محفوظة. هذا سيرفر خاص غير رسمي للعبة Blockman Go.'
             }
         };
 
