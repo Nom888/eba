@@ -20,6 +20,8 @@ jobs:
           cd uWebSockets
           cd uSockets
           make
+          cd ..
+          make
 
       - name: Start Server
         run: |
