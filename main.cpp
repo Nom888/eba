@@ -446,8 +446,10 @@ int main() {
 </body>
 </html>
 )";
-
-    uWS::App{}.get("/*", [content](auto *res, auto *req) {
+    
+    uWS::App app;
+    app.get("/*", [content](auto *res, auto *req) {
+        (void) req;
         res->writeStatus("200 OK")
            ->writeHeader("Content-Type", "text/html")
            ->end(content);
@@ -456,6 +458,7 @@ int main() {
             std::cout << "Процесс " << getpid() << " слушает порт " << port << std::endl;
         } else {
             std::cout << "Процесс " << getpid() << " НЕ СМОГ занять порт " << port << std::endl;
+            exit(1);
         }
     }).run();
 }
