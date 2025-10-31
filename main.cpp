@@ -1,20 +1,10 @@
 #include <iostream>
 #include <App.h>
-#include <unistd.h>
-#include <cerrno>
-#include <cstring>
-
-#define US_LISTEN_REUSE_PORT 1
+#include <vector>
+#include <thread>
 
 int main() {
     const int port = 9001;
-
-    for (int i = 0; i < 3; ++i) {
-        if (!fork()) {
-            break;
-        }
-    }
-
     const char* content = R"(
 <!DOCTYPE html>
 <html lang="en">
@@ -388,7 +378,7 @@ int main() {
                 'feature1_title': 'اقتصاد سخي',
                 'feature1_desc': 'جرّب اقتصادًا متوازنًا حيث تُكافأ جهودك حقًا. احصل على العناصر بسهولة أكبر دون الحاجة إلى اللعب الممل والمتكرر.',
                 'feature2_title': 'فعاليات مجتمعية',
-                'feature2_desc': 'كن جزءًا من سيرفر يهتم باللاعبين. نخطط لاستضافة فعاليات ومسابقات وأنشطة منتظمة يتم تشكيلها بناءً على آراء المجتمع.',
+                'feature2_desc': 'كن جزءًا من سيرفر يهتم باللاعبين. نخطط لاستضافة فعاليات ومсابقات وأنشطة منتظمة يتم تشكيلها بناءً على آراء المجتمع.',
                 'feature3_title': 'لعب مُحسَّن',
                 'feature3_desc': 'استمتع بتجربة لعب أكثر سلاسة واستقرارًا. نحن نركز على التميز التقني لضمان تقليل التأخير وزيادة المتعة.',
                 'join_title': 'كن أول من يعلم!',
@@ -449,16 +439,54 @@ int main() {
 </html>
 )";
 
-    uWS::App{}.get("/*", [content](auto *res, auto *req) {
-        (void) req;
-        res->writeStatus("200 OK")
-           ->writeHeader("Content-Type", "text/html")
-           ->end(content);
-    }).listen(port, US_LISTEN_REUSE_PORT, [port](auto *listen_socket) {
+    auto thread_lambda = [content](int thread_id) {
+        uWS::App().get("/", [content](auto *res, auto *req) {
+            (void) req;
+            res->writeStatus("200 OK")
+               ->writeHeader("Content-Type", "text/html")
+               ->end(content);
+        }).run();
+    };
+
+    std::vector<uWS::App*> apps;
+    std::vector<std::thread*> threads;
+    
+    int hardware_concurrency = std::thread::hardware_concurrency();
+    if (hardware_concurrency == 0) {
+        hardware_concurrency = 4;
+    }
+    
+    for (int i = 0; i < hardware_concurrency; ++i) {
+        apps.push_back(new uWS::App());
+    }
+
+    uWS::App master_app;
+    master_app.listen(port, [&apps, port, hardware_concurrency](auto *listen_socket) {
         if (listen_socket) {
-            std::cout << "Процесс " << getpid() << " слушает порт " << port << std::endl;
-        } else {
-            std::cout << "Процесс " << getpid() << " НЕ СМОГ занять порт " << port << " - Причина: " << strerror(errno) << std::endl;
+            std::cout << "Главный поток слушает порт " << port << std::endl;
         }
-    }).run();
+    });
+
+    for (int i = 0; i < hardware_concurrency; ++i) {
+        threads.push_back(new std::thread([i, content, &apps]() {
+            apps[i]->get("/*", [content](auto *res, auto *req) {
+                (void) req;
+                res->writeStatus("200 OK")
+                   ->writeHeader("Content-Type", "text/html")
+                   ->end(content);
+            }).run();
+            std::cout << "Поток " << i << " завершился" << std::endl;
+        }));
+    }
+
+    master_app.addServerName("child.domain", {});
+    for (int i = 0; i < hardware_concurrency; i++) {
+        master_app.addChildApp(apps[i]);
+    }
+    
+    master_app.run();
+
+    for (auto* t : threads) {
+        t->join();
+    }
 }
