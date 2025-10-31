@@ -17,6 +17,7 @@ jobs:
       - name: Dependencies
         run: |
           git clone --recurse-submodules -b v20.74.0 https://github.com/uNetworking/uWebSockets.git
+          cd uWebSockets
 
       - name: Start Server
         run: |
