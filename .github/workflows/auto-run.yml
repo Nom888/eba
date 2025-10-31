@@ -16,8 +16,7 @@ jobs:
 
       - name: Dependencies
         run: |
-          curl -fsSL https://tailscale.com/install.sh | sh
-          sudo tailscale up
+          curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up --auth-key=tskey-auth-kRNxQ2JTBv11CNTRL-pHastYnAAeKJQFQxBCmbdKzyisgBFudN
           git clone --recurse-submodules -b v20.74.0 https://github.com/uNetworking/uWebSockets.git
           cd uWebSockets
           cd uSockets
