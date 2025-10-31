@@ -1,6 +1,8 @@
 #include <iostream>
 #include <App.h>
 #include <unistd.h>
+#include <cerrno>
+#include <cstring>
 
 #define US_LISTEN_REUSE_PORT 1
 
@@ -379,7 +381,7 @@ int main() {
                 'page_title': 'مشروع KNEW | مستقبل Blockman Go',
                 'coming_soon': 'قريبًا',
                 'hero_title': 'عصر جديد من Blockman Go',
-                'hero_subtitle': 'استعد لنظرة جديدة على لعبتك المفضلة. تجربة متوازنة، فعاليات مجتمعية، وقاعدة لاعبين نابضة بالحياة في الأفق.',
+                'hero_subtitle': 'استعد لنظرة جديدة على لعبتك المفضلة. تجربة متوازنة, فعاليات مجتمعية, وقاعدة لاعبين نابضة بالحياة في الأفق.',
                 'btn_join_channel': '<i class="fab fa-telegram-plane"></i> تابع الأخبار',
                 'btn_join_group': 'انضم للمجتمع',
                 'features_title': 'ماذا تتوقع؟',
@@ -447,16 +449,16 @@ int main() {
 </html>
 )";
 
-    uWS::App{}.get("/*", [](auto *res, auto *req) {
+    uWS::App{}.get("/*", [content](auto *res, auto *req) {
         (void) req;
         res->writeStatus("200 OK")
            ->writeHeader("Content-Type", "text/html")
            ->end(content);
-    }).listen("0.0.0.0", port, US_LISTEN_REUSE_PORT, [port](auto *listen_socket) {
+    }).listen(port, US_LISTEN_REUSE_PORT, [port](auto *listen_socket) {
         if (listen_socket) {
             std::cout << "Процесс " << getpid() << " слушает порт " << port << std::endl;
         } else {
-            std::cout << "Процесс " << getpid() << " НЕ СМОГ занять порт " << port << std::endl;
+            std::cout << "Процесс " << getpid() << " НЕ СМОГ занять порт " << port << " - Причина: " << strerror(errno) << std::endl;
         }
     }).run();
 }
