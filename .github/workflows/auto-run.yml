@@ -14,20 +14,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+
       - name: Dependencies
         run: |
-          curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up --auth-key=tskey-auth-kpEBzwDZdU11CNTRL-b9Xm7dLBYrcXwLpb1Z5rqcpWbKGanefm3
-          git clone --recurse-submodules -b v20.74.0 https://github.com/uNetworking/uWebSockets.git
-          cd uWebSockets
-          cd uSockets
-          make
-          cd ..
-          make
-          mv ../main.cpp .
-          g++ -std=c++20 -march=native -O3 -flto=auto -Wpedantic -Wall -Wextra -Wsign-conversion -Wconversion -Isrc -IuSockets/src main.cpp uSockets/*.o -o main -lz -lssl -lcrypto -pthread
+          python -m pip install aiohttp pycryptodome pyroxy_real2 uvloop
 
       - name: Start Server
         run: |
-            cd uWebSockets
-            ./main & sudo hostnamectl set-hostname cdn && sudo systemctl restart tailscaled && sudo tailscale up && sudo tailscale funnel 127.0.0.1:9001
-
+          python -m main.py
