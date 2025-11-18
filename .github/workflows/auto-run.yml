@@ -24,6 +24,7 @@ jobs:
       - name: Start Server
         run: |
           python3 main.py
+          python3 get_bmg_ids.py
 
       - name: Get bmg_ids.txt
         uses: actions/upload-artifact@v4
