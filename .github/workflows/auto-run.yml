@@ -19,8 +19,14 @@ jobs:
 
       - name: Dependencies
         run: |
-          pip3 install aiohttp pycryptodome pyroxy_real2 uvloop
+          pip3 install aiohttp aiofiles pycryptodome pyroxy_real2 uvloop
 
       - name: Start Server
         run: |
           python3 main.py
+
+      - name: Get bmg_ids.txt
+        uses: actions/upload-artifact@v4
+        with:
+          name: bmg-ids-file
+          path: bmg_ids.txt
