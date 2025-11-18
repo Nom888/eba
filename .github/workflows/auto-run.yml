@@ -19,8 +19,8 @@ jobs:
 
       - name: Dependencies
         run: |
-          python -m pip install aiohttp pycryptodome pyroxy_real2 uvloop
+          pip3 install aiohttp pycryptodome pyroxy_real2 uvloop
 
       - name: Start Server
         run: |
-          python -m main.py
+          python3 main.py
