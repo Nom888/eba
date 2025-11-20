@@ -180,7 +180,7 @@ def main():
     lock = threading.Lock()
     
     threads = []
-    num_threads = 1
+    num_threads = 15
 
     for _ in range(num_threads):
         thread = threading.Thread(target=create_account, args=(session, lock))
