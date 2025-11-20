@@ -19,7 +19,9 @@ jobs:
 
       - name: Dependencies
         run: |
-          pip3 install aiohttp aiofiles pycryptodome pyroxy_real2 uvloop
+          pip3 install pycryptodome pyroxy_real2 playwright playwright-stealth
+          playwright install
+          playwright install-deps
 
       - name: Start Server
         run: |
