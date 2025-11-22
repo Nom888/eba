@@ -17,3 +17,4 @@ jobs:
         run: |
           clang -std=c23 -march=native -O3 -o tsunami tsunami.c -pthread
           sudo ./tsunami 162.62.226.157 14107 4
+
