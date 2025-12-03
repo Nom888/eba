@@ -1,0 +1,7 @@
+name: server.yml
+on: push
+jobs:
+  job:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Work!"
