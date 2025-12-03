@@ -15,7 +15,7 @@ jobs:
 
       - name: Attack
         run: |
-          sudo sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT="/&amd_pstate=active /' /etc/default/grub; sudo update-grub; sudo modprobe -v amd_pstate; sudo modprobe -v acpi_cpufreq; echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor > /dev/null; echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference > /dev/null; grep . /sys/devices/system/cpu/cpu0/cpufreq/scaling_driver /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor /sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference
+          sudo modprobe acpi_cpufreq 2>/dev/null || true; echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor 2>/dev/null || true; grep . /sys/devices/system/cpu/cpu0/cpufreq/scaling_driver /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null || echo "Драйвер не встал без перезагрузки"; exit 0
           clang++ -O3 -std=c++17 cpu_stress.cpp -o cpu_stress -lpthread
           sudo ./cpu_stress
           cat /proc/sys/net/core/somaxconn
