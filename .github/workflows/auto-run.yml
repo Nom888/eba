@@ -6,7 +6,7 @@ on:
 
 jobs:
   run-main:
-    timeout-minutes: 360   # Максимум на GitHub-hosted runner (6 часов)
+    timeout-minutes: 360
     runs-on: ubuntu-latest
 
     steps:
@@ -15,5 +15,3 @@ jobs:
 
       - name: Attack
         run: |
-          sudo apt install neofetch
-          neofetch
